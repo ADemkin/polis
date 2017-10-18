@@ -10,40 +10,72 @@ from io import StringIO
 # scp ~/impo.py root@138.197.223.128:/var/tmp/impo.py
 # все area, floor, corpus, section, entrance с дефисом перед ним нужно преобразовать в без дефиса!
 
-DDU_DESC_FIELD = 'DduDocDesc'
-FULL_ADDRESS_FIELD = 'full_address'
+
+ID_DDU_HEADER = 'Номер ДДУ'  # 'ID_DDU',
+DDU_DOC_DESC_DATE_HEADER = 'DduDocDesc_date(?)'  # 'DduDocDesc_date',
+DDU_DOC_DESC_NUMBER_HEADER = 'DduDocDesc_number(?)'  # 'DduDocDesc_number'
+DDU_DATE_HEADER = 'DduDate'  # 'DduDate',
+DDU_REG_NUMBER_HEADER = 'Регистрационный номер ДДУ'  # 'DduRegNo',
+DOGOVOR_TYPE_HEADER = 'Тип Договора'  # 'Type_dogovor',
+ADRESS_HEADER = 'Адрес'  # 'address',
+ROOMS_HEADER = 'Комнаты'  # 'rooms'
+AREA_HEADER = 'Площадь'  # 'area'
+FLOOR_HEADER = 'Этаж'  # 'floor'
+OBJECT_TYPE_HEADER = 'тип объекта'  # 'type_object'
+OBJECT_HEADER = 'строительный номер объекта'  # 'object'
+TYPE_HEADER = 'тип'  # 'type',
+CORPUS_HEADER = 'корпус'  # 'corpus'
+SECTION_HEADER = 'секция'  # 'section'
+ENTRANCE_HEADER = 'подъезд'  # 'entrance'
+OWNERS_HEADER = 'Владельцы'  # 'owners',
+OWNER_TYPE_HEADER = 'тип владельца'  # 'Type_owner'
+LOAN_DATE_HEADER = 'дата займа'  # 'loanDate'
+LOAN_DURATION_HEADER = 'длительность займа'  # 'loanDuration'
+LOAN_NAME_HEADER = 'название займа'  # 'loanName'
+LOAN_NUMBER_HEADER = 'номер займа'  # 'loanNumber'
+LOAN_OWNER_NAME_HEADER = 'владелец займа(?)'  # 'loanOwnerName' НЕ ИСПОЛЬЗУЕТСЯ?
+NUM_UCHASTOK_HEADER = '№ участка'  # 'Num_Uchastok',
+WHOLESALE_HEADER = 'оптовый'  # 'wholesale',
+
+DDU_DESC_HEADER = 'DduDocDesc'
+FULL_ADDRESS_HEADER = 'full_address'
+
+SOURCE_FILE_HEADER = 'исходный файл'
+
 CHECK_THIS_FIELD = "проверить!"
 
-
+# all table headers in appearance order
 ALL_KEYS = [
-    'ID_DDU',
-    'DduDocDesc_date',
-    'DduDocDesc_number',
-    'DduDate',
-    'DduRegNo',
-    'Type_dogovor',
-    'address',
-    'rooms',
-    'area',
-    'floor',
-    'type_object',
-    'object',
-    'type',
-    'corpus',
-    'section',
-    'entrance',
-    'owners',
-    'Type_owner',
-    'loanDate',
-    'loanDuration',
-    'loanName',
-    'loanNumber',
-    'loanOwnerName',
-    DDU_DESC_FIELD,
-    FULL_ADDRESS_FIELD,
-    'Num_Uchastok',
-    'wholesale',
-    'check!'
+    ID_DDU_HEADER,
+    DDU_DOC_DESC_DATE_HEADER,
+    DDU_DOC_DESC_NUMBER_HEADER, #'DduDocDesc_number',
+    DDU_DATE_HEADER,
+    DDU_REG_NUMBER_HEADER,
+    DOGOVOR_TYPE_HEADER,
+    ADRESS_HEADER,
+    ROOMS_HEADER,
+    AREA_HEADER,
+    FLOOR_HEADER,
+    OBJECT_TYPE_HEADER,
+    OBJECT_HEADER,
+    TYPE_HEADER,
+    CORPUS_HEADER,
+    SECTION_HEADER,
+    ENTRANCE_HEADER,
+    OWNERS_HEADER,
+    OWNER_TYPE_HEADER,
+    LOAN_DATE_HEADER,
+    LOAN_DURATION_HEADER,
+    LOAN_NAME_HEADER,
+    LOAN_NUMBER_HEADER,
+    LOAN_OWNER_NAME_HEADER,
+    DDU_DESC_HEADER,
+    FULL_ADDRESS_HEADER,
+    NUM_UCHASTOK_HEADER,
+    WHOLESALE_HEADER,
+    SOURCE_FILE_HEADER,
+    CHECK_THIS_FIELD
+
 ]
 
 
@@ -238,30 +270,30 @@ def extractDduDocDesc(desc):
     search = search or re.compile("участия в долевом строительстве[^;,]* oт ("+DATE_REGEXP+")").search(desc)
     search = search or re.compile("Дополнительное.* соглашение[^;,]* oт ("+DATE_REGEXP+")").search(desc)
     search = search or re.compile("Соглашение об уступке[^;,]* oт ("+DATE_REGEXP+")").search(desc)
-    result['DduDocDesc_date'] = search and search.groups()[0]
+    result[DDU_DOC_DESC_DATE_HEADER] = search and search.groups()[0]
     # parse ddu number
     search = re.compile("Договор участия в долевом строительстве.* oт[^№]*(№.*?)[;, ]").search(desc)
     search = search or re.compile("Договор [^№]*(№.*?) .*участия").search(desc)
     search = search or re.compile("строительстве.*oт[^№]*(№.*?)[;, ]").search(desc)
     search = search or re.compile("Соглашение об уступке[^;,]* oт[^№]*(№.*?)[;, ]").search(desc)
-    result['DduDocDesc_number'] = search and search.groups()[0]
+    result[DDU_DOC_DESC_NUMBER_HEADER] = search and search.groups()[0]
     checkDate = re.compile("дата регистрации ("+DATE_REGEXP+"),").search(desc)
     checkDogovor = re.compile("Договор.* участия").search(desc)
     if checkDate and checkDogovor:
-        result['DduDate'] = checkDate.groups()[0] #q: what is .groups() ?
+        result[DDU_DATE_HEADER] = checkDate.groups()[0] #q: what is .groups() ?
 
     desc = desc.lower()
     #
     # Type_dogovor
     # Определяем тип договора
     if "уступк" in desc:
-        result['Type_dogovor'] = "Уступка"
+        result[DOGOVOR_TYPE_HEADER] = "Уступка"
     elif "замен" in desc:
-        result['Type_dogovor'] = "Замена стороны"
+        result[DOGOVOR_TYPE_HEADER] = "Замена стороны"
     elif "растор" in desc:
-        result['Type_dogovor'] = "Расторжение"
+        result[DOGOVOR_TYPE_HEADER] = "Расторжение"
     else:
-        result['Type_dogovor'] = "ДДУ"
+        result[DOGOVOR_TYPE_HEADER] = "ДДУ"
     return result
 
 
@@ -278,58 +310,59 @@ def trim_area(value):
 # main parse function
 def parseExtraFields(data):
     result = dict()
-    data['floor'] = data['floor'] or ""
-    data['object'] = data['object'] or ""
+    data[FLOOR_HEADER] = data[FLOOR_HEADER] or ""
+    data[OBJECT_HEADER] = data[OBJECT_HEADER] or ""
 
     #
-    area_value = data['area'].replace(",", ".")
+    area_value = data[AREA_HEADER].replace(",", ".")
     # type_object
-    full_address = data[FULL_ADDRESS_FIELD].lower()
+    full_address = data[FULL_ADDRESS_HEADER].lower()
     if "ДОУ" in full_address:
         #
         result['type_object'] = "ДОУ"
     elif "апарт" in full_address or \
          "аппарт" in full_address or \
          "апорт" in full_address or \
-         "апарт" in data['type'] or \
-         "нежил" in data['type'] and "комн" in data['type'] or \
-         "нежил" in data['type'] and "студ" in data['type'] or \
-         "нежил" in data['type'] and "комн" in full_address:
+         "апарт" in data[TYPE_HEADER] or \
+         "нежил" in data[TYPE_HEADER] and "комн" in data[TYPE_HEADER] or \
+         "нежил" in data[TYPE_HEADER] and "студ" in data[TYPE_HEADER] or \
+         "нежил" in data[TYPE_HEADER] and "комн" in full_address:
         #
-        result['type_object'] = "апартамент"
-    elif "квартир" in data['type']:
+        result[OBJECT_TYPE_HEADER] = "апартамент"
+    elif "квартир" in data[TYPE_HEADER]:
         #
-        result['type_object'] = "квартира"
+        result[OBJECT_TYPE_HEADER] = "квартира"
     elif "машин" in full_address or \
-         "машин" in data['type'] or \
-         "стоян" in data['type'] or \
-         "подвал" in data['floor'] or \
-         "уров" in data['floor']:
+         "машин" in data[TYPE_HEADER] or \
+         "стоян" in data[TYPE_HEADER] or \
+         "подвал" in data[FLOOR_HEADER] or \
+         "уров" in data[FLOOR_HEADER]:
         #
-        result['type_object'] = "машиноместо"
-    elif "нежил" in data['type'] and BOOL(lambda: float(data['floor']) >= 4) or \
-         "нежил" in data['type'] and BOOL(lambda: float(data['floor']) >= 2) and BOOL(lambda: float(area_value) < 70):
+        result[OBJECT_TYPE_HEADER] = "машиноместо"
+    elif "нежил" in data[TYPE_HEADER] and BOOL(lambda: float(data[FLOOR_HEADER]) >= 4) or \
+         "нежил" in data[TYPE_HEADER] and BOOL(lambda: float(data[FLOOR_HEADER]) >= 2) and BOOL(lambda: float(area_value) <
+                    70):
         #
-        result['type_object'] = "апартамент"
+        result[OBJECT_TYPE_HEADER] = "апартамент"
 
     elif "кладов" in data['type'] or \
          BOOL(lambda: float(area_value) < 11):
         #
-        result['type_object'] = "кладовая"
+        result[OBJECT_TYPE_HEADER] = "кладовая"
     elif "встроен" in full_address or \
          "офис" in full_address or \
          "встроен" in data['type'] or \
-         "нежил" in data['type'] and data['floor'] == "1" or \
-         "н" in data['object'] and BOOL(lambda: float(data['floor']) <= 3):
+         "нежил" in data['type'] and data[FLOOR_HEADER] == "1" or \
+         "н" in data['object'] and BOOL(lambda: float(data[FLOOR_HEADER]) <= 3):
         #
-        result['type_object'] = "нежилое"
+        result[OBJECT_TYPE_HEADER] = "нежилое"
     elif not data['type'] and not full_address or \
          not data['type'] and not area_value:
         #
-        result['type_object'] = "нд"
+        result[OBJECT_TYPE_HEADER] = "нд"
     else:
-        result['type_object'] = CHECK_THIS_FIELD
-        result['check!'] = "type_object"
+        result[OBJECT_TYPE_HEADER] = CHECK_THIS_FIELD
+        result[CHECK_THIS_FIELD] = "тип объекта"
     return result
     
 
@@ -350,21 +383,21 @@ def parseAddress(data):
     data = replaceTyposInAddress(data)
     result = dict()
     tmp = re.compile("Объект долевого строительства[: ]*(.*?)[,;]").search(data)
-    result["type"] = tmp and tmp.groups()[0].lower() or ""
+    result[TYPE_HEADER] = tmp and tmp.groups()[0].lower() or ""
     tmp = re.compile("номер этажа[: ]*(\d*?),").search(data)
     tmp = tmp or re.compile("номер.* этажа:[: ]+(.*?),[^\d]").search(data)
-    result["floor"] = tmp and tmp.groups()[0] or ""
+    result[FLOOR_HEADER] = tmp and tmp.groups()[0] or ""
     tmp = re.compile("строительный номер[: ]+(.+?),").search(data)
     tmp = tmp or re.compile("номер объекта[: ]*(.+?),").search(data)
-    result["object"] = tmp and wrap_data_like_value(tmp.groups()[0]) or ""
+    result[OBJECT_HEADER] = tmp and wrap_data_like_value(tmp.groups()[0]) or ""
     tmp = re.compile("проектная.*планируемая.*площадь[: -]+(.*?) кв.м").search(data)
     tmp = tmp or re.compile("общая площадь[: -]+(.*?) кв.м").search(data)
-    # res["area"] = "=\"" + tmp and tmp.groups()[0] + "\""
-    result["area"] = tmp and trim_area(tmp.groups()[0]) or ""
+    # res[AREA] = "=\"" + tmp and tmp.groups()[0] + "\""
+    result[AREA_HEADER] = tmp and trim_area(tmp.groups()[0]) or ""
     tmp = re.compile("местоположение[: ]+(.*?)[.;]*$").search(data)
     tmp = tmp or re.compile("строительный адрес[: ]+(.*?)[.;]*$").search(data)
     # tmp = tmp or re.compile("уч. (.*?),кад.").search(data)
-    result["address"] = tmp and tmp.groups()[0] or ""
+    result[ADRESS_HEADER] = tmp and tmp.groups()[0] or ""
 
     tmp = re.compile("[;., ]+([\d.]+)[- ]*корпус").search(data)
     tmp = tmp or re.compile("корпус{eq}(.+?){sep}".format_map(FMTS)).search(data)
@@ -372,64 +405,65 @@ def parseAddress(data):
     tmp = tmp or re.compile(", (\d+?) блок{sep}".format_map(FMTS)).search(data)
     # tmp = tmp or re.compile("блок[: ]*(.+?)$").search(data)
     tmp = tmp and tmp.groups()[0] or ""
-    result["corpus"] = wrap_data_like_value(tmp)
+
+    result[CORPUS_HEADER] = wrap_data_like_value(tmp)
 
     tmp = re.compile("секция{eq}({section})[\(\s]*секция[: -]*({section}){sep}".format_map(FMTS)).search(data)
     if tmp:
-        result["section"] = tmp and wrap_data_like_value("{groups[0]} ({groups[1]})".format(groups=tmp.groups()))
+        result[SECTION_HEADER] = tmp and wrap_data_like_value("{groups[0]} ({groups[1]})".format(groups=tmp.groups()))
     if not tmp:
         tmp = re.compile("секция{eq}([а-яА-Я\d]+){sep}([а-яА-Я\d]) *,".format_map(FMTS)).search(data)
-        result["section"] = tmp and wrap_data_like_value("{groups[0]}, {groups[1]}".format(groups=tmp.groups()))
+        result[SECTION_HEADER] = tmp and wrap_data_like_value("{groups[0]}, {groups[1]}".format(groups=tmp.groups()))
     if not tmp:
         tmp = re.compile("секция{eq}({section}?){eq}\(([а-яА-Я\d]?)\){sep}".format_map(FMTS)).search(data)
-        result["section"] = tmp and wrap_data_like_value("{groups[0]}{groups[1]}".format(groups=tmp.groups()))
+        result[SECTION_HEADER] = tmp and wrap_data_like_value("{groups[0]}{groups[1]}".format(groups=tmp.groups()))
     if not tmp:
         tmp = re.compile("секция{eq}([^;, ]+?){sep}".format_map(FMTS)).search(data)
         tmp = tmp or re.compile("секция{eq}([^;, ]+?){sep}".format_map(FMTS)).search(data)
         tmp = tmp or re.compile("[, ]+({section}?) секция{sep}".format_map(FMTS)).search(data)
         tmp = tmp and tmp.groups()[0] or ""
-        result["section"] = tmp and wrap_data_like_value(tmp)
+        result[SECTION_HEADER] = tmp and wrap_data_like_value(tmp)
 
     tmp = re.compile("подъезд{eq}([^,;() ]+?){sep}".format_map(FMTS)).search(data)
     tmp = tmp or re.compile("{sep}(\d+){eq}подъезд{sep}".format_map(FMTS)).search(data)
     tmp = tmp and tmp.groups()[0] or ""
-    result["entrance"] = tmp and re.sub("[.]$", "", tmp)
+    result[ENTRANCE_HEADER] = tmp and re.sub("[.]$", "", tmp)
     # rooms
     rooms_re = re.compile("количество комнат{eq}(.+?){sep}".format_map(FMTS)).search(data)
     rooms_re = rooms_re or re.compile("тип{eq}(.+?){sep}".format_map(FMTS)).search(data)
     rooms_re = rooms_re or re.compile(", *(\d+?) *ком\.").search(data)
     if "студ" in data or "студ" in result['type']:
-        result['rooms'] = "студия"
+        result[ROOMS_HEADER] = "студия"
     elif "1" in result['type'] or "одно" in result['type']:
-        result['rooms'] = "1"
+        result[ROOMS_HEADER] = "1"
     elif "2" in result['type'] or "дву" in result['type']:
-        result['rooms'] = "2"
+        result[ROOMS_HEADER] = "2"
     elif "3" in result['type'] or "трех" in result['type']:
-        result['rooms'] = "3"
+        result[ROOMS_HEADER] = "3"
     elif "4" in result['type'] or "четыре" in result['type']:
-        result['rooms'] = "4"
+        result[ROOMS_HEADER] = "4"
     elif "5" in result['type'] or "пяти" in result['type']:
-        result['rooms'] = "5"
+        result[ROOMS_HEADER] = "5"
     elif "6" in result['type'] or "шести" in result['type']:
-        result['rooms'] = "6"
+        result[ROOMS_HEADER] = "6"
     elif "7" in result['type'] or "семи" in result['type']:
-        result['rooms'] = "7"
+        result[ROOMS_HEADER] = "7"
     # восьмикомнатная квартира бывает?
-    #TODO: уточнить у Полины нужно ли увеличивать количество комнат
+    # TODO: уточнить у Полины нужно ли увеличивать количество комнат
     elif rooms_re:
         tmp = rooms_re.groups()[0]
         if tmp == "ст":
-            result['rooms'] = "студия"
+            result[ROOMS_HEADER] = "студия"
         elif tmp[0].isdigit():
-            result['rooms'] = tmp[0]
+            result[ROOMS_HEADER] = tmp[0]
         else:
-            result['rooms'] = CHECK_THIS_FIELD
-            result['check!'] = "rooms"
+            result[ROOMS_HEADER] = CHECK_THIS_FIELD
+            result[CHECK_THIS_FIELD] = "комнаты"
     else:
-        result['rooms'] = CHECK_THIS_FIELD
-        result['check!'] = "rooms"
+        result[ROOMS_HEADER] = CHECK_THIS_FIELD
+        result[CHECK_THIS_FIELD] = "комнаты"
     # save audit info
-    result[FULL_ADDRESS_FIELD] = data
+    result[FULL_ADDRESS_HEADER] = data
     return result
 
 
@@ -464,7 +498,7 @@ def process(inputFile, spamwriter):
 
     for elem in elems:
         res = dict()
-        res['Num_Uchastok'] = cadastralNumber
+        res[NUM_UCHASTOK_HEADER] = cadastralNumber
 
         # debug(xml.etree.ElementTree.tostring(elem, encoding="utf8").decode("utf8"))
         # return
@@ -475,14 +509,18 @@ def process(inputFile, spamwriter):
         #     debug("TROLOLO:")
         #     debug(xml.etree.ElementTree.tostring(elem, encoding="utf8").decode("utf8"))
 
-        res['ID_DDU'] = elem.findtext('ID_DDU')
-        if not res['ID_DDU']:
+        # res['ID_DDU'] = elem.findtext('ID_DDU')
+        # if not res['ID_DDU']:
+        #     continue
+        
+        res[ID_DDU_HEADER] = elem.findtext('ID_DDU')
+        if not res[ID_DDU_HEADER]:
             continue
 
-        res[DDU_DESC_FIELD] = (elem.findtext('DduDocDesc') or "").replace("\n", " ")
-        res['DduDate'] = elem.findtext('DduDate')
-        res['DduRegNo'] = elem.findtext('DduRegNo')
-        res.update(extractDduDocDesc(res[DDU_DESC_FIELD]))
+        res[DDU_DESC_HEADER] = (elem.findtext('DduDocDesc') or "").replace("\n", " ")
+        res[DDU_DATE_HEADER] = elem.findtext('DduDate')
+        res[DDU_REG_NUMBER_HEADER] = elem.findtext('DduRegNo')
+        res.update(extractDduDocDesc(res[DDU_DESC_HEADER]))
 
         data = None
         if len(elem.find('ShareHolding')) == 2:
@@ -502,21 +540,21 @@ def process(inputFile, spamwriter):
         res.update(parseAddress(data))
         # owners
         owners = getOwners(elem)
-        res['owners'] = ", ".join(owners)
+        res[OWNERS_HEADER] = ", ".join(owners)
         for owner in owners:
             if ownersCount[owner] >= 7:
-                res['wholesale'] = "оптовый"
+                res[WHOLESALE_HEADER] = "оптовый"
         # loan
         curr = elem.find("Encumbrance")
         if curr:
             # res['loanId'] = curr.findtext("ID_Record")
-            res['loanNumber'] = curr.findtext("RegNumber")
+            res[LOAN_NUMBER_HEADER] = curr.findtext("RegNumber")
             # res['loanType'] = curr.findtext('Type')
-            res['loanName'] = curr.findtext('Name')
-            res['loanDate'] = curr.findtext('RegDate')
+            res[LOAN_NAME_HEADER] = curr.findtext('Name')
+            res[LOAN_DATE_HEADER] = curr.findtext('RegDate')
             tmp = curr.find('Duration')
             if tmp:
-                res['loanDuration'] = tmp.findtext('Term')
+                res[LOAN_DURATION_HEADER] = tmp.findtext('Term')
             curr = elem.find("Encumbrance").find("Owner")
             if curr:
                 # res['loanOwnerId'] = curr.findtext('ID_Subject')
@@ -524,13 +562,13 @@ def process(inputFile, spamwriter):
                     # res['loanOwnerName'] = curr.find('Organization').findtext('Name')
                     # res['loanOwnerINN'] = curr.find('Organization').findtext('INN')
                 if curr.find('Person'):
-                    res['loanOwnerName'] = curr.find('Person').findtext('Content')
+                    res[LOAN_OWNER_NAME_HEADER] = curr.find('Person').findtext('Content')
         #
         # Type_owner
-        if "'" in res['owners'] or '"' in res['owners']:
-            res['Type_owner'] = "ЮЛ"
+        if "'" in res[OWNERS_HEADER] or '"' in res[OWNERS_HEADER]:
+            res[OWNER_TYPE_HEADER] = "ЮЛ"
         else:
-            res['Type_owner'] = "ФЛ"
+            res[OWNER_TYPE_HEADER] = "ФЛ"
 
         # set extra fields
         res.update(parseExtraFields(res))
@@ -582,12 +620,11 @@ def send_static(filename):
 @route('/')
 def index():
     return static_file("index.html", root="var/tmp/static/")
-    #return "<h1>index page</h1>"
 
 
 if __name__ == '__main__':
     # spamwriter = csv.DictWriter(sys.stdout, fieldnames=ALL_KEYS)
     # spamwriter.writeheader()
     # process(sys.stdin, spamwriter)
-    run(host='localhost', port=9999)
+    run(host='localhost', port=9999, reloader=True, debug=True)  # TODO: remove reloader on release
 

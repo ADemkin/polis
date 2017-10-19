@@ -432,21 +432,21 @@ def parseAddress(data):
     rooms_re = re.compile("количество комнат{eq}(.+?){sep}".format_map(FMTS)).search(data)
     rooms_re = rooms_re or re.compile("тип{eq}(.+?){sep}".format_map(FMTS)).search(data)
     rooms_re = rooms_re or re.compile(", *(\d+?) *ком\.").search(data)
-    if "студ" in data or "студ" in result['type']:
+    if "студ" in data or "студ" in result[TYPE_HEADER]:
         result[ROOMS_HEADER] = "студия"
-    elif "1" in result['type'] or "одно" in result['type']:
+    elif "1" in result[TYPE_HEADER] or "одно" in result[TYPE_HEADER]:
         result[ROOMS_HEADER] = "1"
-    elif "2" in result['type'] or "дву" in result['type']:
+    elif "2" in result[TYPE_HEADER] or "дву" in result[TYPE_HEADER]:
         result[ROOMS_HEADER] = "2"
-    elif "3" in result['type'] or "трех" in result['type']:
+    elif "3" in result[TYPE_HEADER] or "трех" in result[TYPE_HEADER]:
         result[ROOMS_HEADER] = "3"
-    elif "4" in result['type'] or "четыре" in result['type']:
+    elif "4" in result[TYPE_HEADER] or "четыре" in result[TYPE_HEADER]:
         result[ROOMS_HEADER] = "4"
-    elif "5" in result['type'] or "пяти" in result['type']:
+    elif "5" in result[TYPE_HEADER] or "пяти" in result[TYPE_HEADER]:
         result[ROOMS_HEADER] = "5"
-    elif "6" in result['type'] or "шести" in result['type']:
+    elif "6" in result[TYPE_HEADER] or "шести" in result[TYPE_HEADER]:
         result[ROOMS_HEADER] = "6"
-    elif "7" in result['type'] or "семи" in result['type']:
+    elif "7" in result[TYPE_HEADER] or "семи" in result[TYPE_HEADER]:
         result[ROOMS_HEADER] = "7"
     # восьмикомнатная квартира бывает?
     # TODO: уточнить у Полины нужно ли увеличивать количество комнат

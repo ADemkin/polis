@@ -482,7 +482,10 @@ def getOwners(elem):
     return owners
 
 
-def process(inputFile, spamwriter):
+def process(input_file, spamwriter):
+    
+    inputFile = input_file.file
+    filename = input_file.filename
     
     parser = xml.etree.ElementTree.XMLParser(encoding="UTF-8")
     root = xml.etree.ElementTree.parse(inputFile, parser).getroot()
@@ -575,7 +578,9 @@ def process(inputFile, spamwriter):
             res[OWNER_TYPE_HEADER] = "ЮЛ"
         else:
             res[OWNER_TYPE_HEADER] = "ФЛ"
-
+        
+        res[SOURCE_FILE_HEADER] = filename
+        
         # set extra fields
         res.update(parseExtraFields(res))
         # output all fields as csv row
@@ -600,7 +605,7 @@ def do_upload():
             # if ext not in ('.xml', ".html", ".htm"):
             #     return "<h2>Unable to upload a file: This file type is not supported.</h2>"
             #q: why this is removed? do we use non-xml files?
-            process(upload.file, spamwriter)
+            process(upload, spamwriter)
             #debug(upload.filename) #working, but cyrillic filenames is not working
         if len(uploads) > 1:
             name += "_multiple"

@@ -1,3 +1,5 @@
+# coding=utf-8
+
 import sys
 import re
 import xml.etree.ElementTree
@@ -10,39 +12,42 @@ from io import StringIO
 # scp ~/impo.py root@138.197.223.128:/var/tmp/impo.py
 # все area, floor, corpus, section, entrance с дефисом перед ним нужно преобразовать в без дефиса!
 
-
-ID_DDU_HEADER = 'Номер ДДУ'  # 'ID_DDU',
-DDU_DOC_DESC_DATE_HEADER = 'DduDocDesc_date(?)'  # 'DduDocDesc_date',
-DDU_DOC_DESC_NUMBER_HEADER = 'DduDocDesc_number(?)'  # 'DduDocDesc_number'
-DDU_DATE_HEADER = 'DduDate'  # 'DduDate',
-DDU_REG_NUMBER_HEADER = 'Регистрационный номер ДДУ'  # 'DduRegNo',
+# VARIABLE / table name # old name
+ID_DDU_HEADER = 'ID'  # 'ID_DDU',
+DDU_DOC_DESC_DATE_HEADER = 'Дата ДДУ'  # 'DduDocDesc_date',
+DDU_DOC_DESC_NUMBER_HEADER = '№ ДДУ'  # 'DduDocDesc_number'
+DDU_DATE_HEADER = 'Дата регистрации ДДУ'  # 'DduDate',
+DDU_REG_NUMBER_HEADER = '№ регистрации ДДУ'  # 'DduRegNo',
 DOGOVOR_TYPE_HEADER = 'Тип Договора'  # 'Type_dogovor',
 ADRESS_HEADER = 'Адрес'  # 'address',
-ROOMS_HEADER = 'Комнаты'  # 'rooms'
+ROOMS_HEADER = 'Кол-во комнат'  # 'rooms'
 AREA_HEADER = 'Площадь'  # 'area'
 FLOOR_HEADER = 'Этаж'  # 'floor'
-OBJECT_TYPE_HEADER = 'тип объекта'  # 'type_object'
-OBJECT_HEADER = 'строительный номер объекта'  # 'object'
-TYPE_HEADER = 'тип'  # 'type',
-CORPUS_HEADER = 'корпус'  # 'corpus'
-SECTION_HEADER = 'секция'  # 'section'
-ENTRANCE_HEADER = 'подъезд'  # 'entrance'
-OWNERS_HEADER = 'Владельцы'  # 'owners',
-OWNER_TYPE_HEADER = 'тип владельца'  # 'Type_owner'
-LOAN_DATE_HEADER = 'дата займа'  # 'loanDate'
-LOAN_DURATION_HEADER = 'длительность займа'  # 'loanDuration'
-LOAN_NAME_HEADER = 'название займа'  # 'loanName'
-LOAN_NUMBER_HEADER = 'номер займа'  # 'loanNumber'
-LOAN_OWNER_NAME_HEADER = 'владелец займа(?)'  # 'loanOwnerName' НЕ ИСПОЛЬЗУЕТСЯ?
-NUM_UCHASTOK_HEADER = '№ участка'  # 'Num_Uchastok',
-WHOLESALE_HEADER = 'оптовый'  # 'wholesale',
-
-DDU_DESC_HEADER = 'DduDocDesc'
-FULL_ADDRESS_HEADER = 'full_address'
+OBJECT_TYPE_HEADER = 'Тип помещения'  # 'type_object'
+OBJECT_HEADER = '№ объекта'  # 'object'
+TYPE_HEADER = 'Тип_исх'  # 'type',
+CORPUS_HEADER = 'Корпус'  # 'corpus'
+SECTION_HEADER = 'Секция'  # 'section'
+ENTRANCE_HEADER = 'Подъезд'  # 'entrance'
+OWNERS_HEADER = 'ФИО'  # 'owners',
+OWNER_TYPE_HEADER = 'ФЛ/ЮЛ'  # 'Type_owner'
+LOAN_DATE_HEADER = 'Дата регистрации залога'  # 'loanDate'
+LOAN_DURATION_HEADER = 'Срок залога'  # 'loanDuration'
+LOAN_NAME_HEADER = 'Тип залога'  # 'loanName'
+LOAN_NUMBER_HEADER = '№ залога'  # 'loanNumber'
+LOAN_OWNER_NAME_HEADER = 'Банк'  # 'loanOwnerName' # Переделываем в Банк, сейчас здесь ФИО дольщика
+NUM_UCHASTOK_HEADER = '№ ЗУ'  # 'Num_Uchastok',
+WHOLESALE_HEADER = 'Кол-во купленных лотов'  # 'wholesale',
+DDU_DESC_HEADER = 'Название ДДУ' # 'DduDocDesc
+FULL_ADDRESS_HEADER = 'Объект и адрес' # full_address
+CHECK_THIS_FIELD = "проверить!" # check!
 
 SOURCE_FILE_HEADER = 'исходный файл'
 
-CHECK_THIS_FIELD = "проверить!"
+PROJECT_HEADER = ''
+NEW_OBJECT_HEADER = ''
+GLORAX_PROJECT_COMPETITOR_HEADER = ''
+
 
 # all table headers in appearance order
 ALL_KEYS = [
@@ -319,7 +324,7 @@ def parseExtraFields(data):
     full_address = data[FULL_ADDRESS_HEADER].lower()
     if "ДОУ" in full_address:
         #
-        result['type_object'] = "ДОУ"
+        result[OBJECT_TYPE_HEADER] = "ДОУ"
     elif "апарт" in full_address or \
          "аппарт" in full_address or \
          "апорт" in full_address or \
@@ -345,19 +350,19 @@ def parseExtraFields(data):
         #
         result[OBJECT_TYPE_HEADER] = "апартамент"
 
-    elif "кладов" in data['type'] or \
+    elif "кладов" in data[TYPE_HEADER] or \
          BOOL(lambda: float(area_value) < 11):
         #
         result[OBJECT_TYPE_HEADER] = "кладовая"
     elif "встроен" in full_address or \
          "офис" in full_address or \
-         "встроен" in data['type'] or \
-         "нежил" in data['type'] and data[FLOOR_HEADER] == "1" or \
-         "н" in data['object'] and BOOL(lambda: float(data[FLOOR_HEADER]) <= 3):
+         "встроен" in data[TYPE_HEADER] or \
+         "нежил" in data[TYPE_HEADER] and data[FLOOR_HEADER] == "1" or \
+         "н" in data[OBJECT_HEADER] and BOOL(lambda: float(data[FLOOR_HEADER]) <= 3):
         #
         result[OBJECT_TYPE_HEADER] = "нежилое"
-    elif not data['type'] and not full_address or \
-         not data['type'] and not area_value:
+    elif not data[TYPE_HEADER] and not full_address or \
+         not data[TYPE_HEADER] and not area_value:
         #
         result[OBJECT_TYPE_HEADER] = "нд"
     else:
@@ -478,6 +483,7 @@ def getOwners(elem):
 
 
 def process(inputFile, spamwriter):
+    
     parser = xml.etree.ElementTree.XMLParser(encoding="UTF-8")
     root = xml.etree.ElementTree.parse(inputFile, parser).getroot()
     cadastralNumber = root.find('ReestrExtract'
@@ -595,15 +601,16 @@ def do_upload():
             #     return "<h2>Unable to upload a file: This file type is not supported.</h2>"
             #q: why this is removed? do we use non-xml files?
             process(upload.file, spamwriter)
+            #debug(upload.filename) #working, but cyrillic filenames is not working
         if len(uploads) > 1:
             name += "_multiple"
-        res = output.getvalue()
+        result_csv = output.getvalue()
         output.close()
         print("END")
         headers = dict()
         headers['Content-Type'] = "text/csv;charset=utf-8"
         headers['Content-Disposition'] = 'attachment; filename=' + name + ".csv"
-        return HTTPResponse(res, **headers)
+        return HTTPResponse(result_csv, **headers)
     except Exception as e:
         output = StringIO()
         traceback.print_exc(file=output)

@@ -485,7 +485,7 @@ def getOwners(elem):
 def process(input_file, spamwriter):
     
     inputFile = input_file.file
-    filename = input_file.filename
+    filename = input_file.raw_filename
     
     parser = xml.etree.ElementTree.XMLParser(encoding="UTF-8")
     root = xml.etree.ElementTree.parse(inputFile, parser).getroot()

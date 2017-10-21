@@ -548,11 +548,13 @@ def process(input_file, spamwriter):
 
         res.update(parseAddress(data))
         # owners
+        # TODO: переделать функцию для высчитывания количества лотов у владельца
         owners = getOwners(elem)
         res[OWNERS_HEADER] = ", ".join(owners)
         for owner in owners:
             if ownersCount[owner] >= 7:
                 res[WHOLESALE_HEADER] = "оптовый"
+        
         # loan
         curr = elem.find("Encumbrance")
         if curr:
@@ -570,8 +572,11 @@ def process(input_file, spamwriter):
                 # if curr.find('Organization'):
                     # res['loanOwnerName'] = curr.find('Organization').findtext('Name')
                     # res['loanOwnerINN'] = curr.find('Organization').findtext('INN')
-                if curr.find('Person'):
-                    res[LOAN_OWNER_NAME_HEADER] = curr.find('Person').findtext('Content')
+                # change person to bank
+                # if curr.find('Person'):
+                #     res[LOAN_OWNER_NAME_HEADER] = curr.find('Person').findtext('Content')
+                if curr.find('Organization'):
+                    res[LOAN_OWNER_NAME_HEADER]= curr.find('Organization').findtext('Name')
         #
         # Type_owner
         if "'" in res[OWNERS_HEADER] or '"' in res[OWNERS_HEADER]:

@@ -387,18 +387,23 @@ FMTS = dict(
 def parseAddress(data):
     data = replaceTyposInAddress(data)
     result = dict()
+    
     tmp = re.compile("Объект долевого строительства[: ]*(.*?)[,;]").search(data)
     result[TYPE_HEADER] = tmp and tmp.groups()[0].lower() or ""
+    
     tmp = re.compile("номер этажа[: ]*(\d*?),").search(data)
     tmp = tmp or re.compile("номер.* этажа:[: ]+(.*?),[^\d]").search(data)
     result[FLOOR_HEADER] = tmp and tmp.groups()[0] or ""
+    
     tmp = re.compile("строительный номер[: ]+(.+?),").search(data)
     tmp = tmp or re.compile("номер объекта[: ]*(.+?),").search(data)
     result[OBJECT_HEADER] = tmp and wrap_data_like_value(tmp.groups()[0]) or ""
+    
     tmp = re.compile("проектная.*планируемая.*площадь[: -]+(.*?) кв.м").search(data)
     tmp = tmp or re.compile("общая площадь[: -]+(.*?) кв.м").search(data)
     # res[AREA] = "=\"" + tmp and tmp.groups()[0] + "\""
     result[AREA_HEADER] = tmp and trim_area(tmp.groups()[0]) or ""
+    
     tmp = re.compile("местоположение[: ]+(.*?)[.;]*$").search(data)
     tmp = tmp or re.compile("строительный адрес[: ]+(.*?)[.;]*$").search(data)
     # tmp = tmp or re.compile("уч. (.*?),кад.").search(data)
@@ -410,7 +415,7 @@ def parseAddress(data):
     tmp = tmp or re.compile(", (\d+?) блок{sep}".format_map(FMTS)).search(data)
     # tmp = tmp or re.compile("блок[: ]*(.+?)$").search(data)
     tmp = tmp and tmp.groups()[0] or ""
-
+    #debug(tmp)
     result[CORPUS_HEADER] = wrap_data_like_value(tmp)
 
     tmp = re.compile("секция{eq}({section})[\(\s]*секция[: -]*({section}){sep}".format_map(FMTS)).search(data)
@@ -472,13 +477,46 @@ def parseAddress(data):
     return result
 
 
+'''
+баг крыма заключается в том, что в xml файле последовательно идут сначала данные юрлица
+и сразу данные физица. Можно разделять эти два типа данных и выбирать данные физлица
+в случае присутствия сразу двух полей
+<Owner>
+    <ID_Subject>091010000016119</ID_Subject>
+    <Organization>
+        <Code_SP>007002001000</Code_SP>
+        <Content>ОБЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ &quot;ГУРЗУФ РИВЬЕРА&quot;, ИНН 9103004807</Content>
+        <Code_OPF>009002004000</Code_OPF>
+        <Name>ОБЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ &quot;ГУРЗУФ РИВЬЕРА&quot;</Name>
+    </Organization>
+</Owner>
+<Owner>
+    <ID_Subject>091010000059150</ID_Subject>
+    <Person>
+        <Code_SP>007003001000</Code_SP>
+        <Content>Петров Антон Дмитриевич</Content>
+        <FIO>
+            <Surname>Петров</Surname>
+            <First>Антон</First>
+            <Patronymic>Дмитриевич</Patronymic>
+        </FIO>
+    </Person>
+</Owner>
+
+'''
+
+
 def getOwners(elem):
     owners = list()
     for t in elem.findall('Owner'):
         tag = t.find('Person') or \
               t.find('Organization') or \
               t.find('Governance')
-        owners.append(tag.findtext('Content'))
+        name = tag.findtext('Content')
+        owners.append(name)
+        # debug
+        #debug(name)
+    # debug("owners processed")
     return owners
 
 
@@ -547,13 +585,14 @@ def process(input_file, spamwriter):
         # debug("----------")
 
         res.update(parseAddress(data))
+        
         # owners
-        # TODO: переделать функцию для высчитывания количества лотов у владельца
         owners = getOwners(elem)
         res[OWNERS_HEADER] = ", ".join(owners)
         for owner in owners:
             if ownersCount[owner] >= 7:
-                res[WHOLESALE_HEADER] = "оптовый"
+                # res[WHOLESALE_HEADER] = "оптовый"
+                res[WHOLESALE_HEADER] = ownersCount[owner]
         
         # loan
         curr = elem.find("Encumbrance")
@@ -606,11 +645,13 @@ def do_upload():
         spamwriter.writeheader()
         uploads = request.files.getall('upload')
         for upload in uploads:
+            # todo: make a workaround about raw_filename and encode it correctly (utf-8 i think)
             name, ext = os.path.splitext(upload.filename)
             # if ext not in ('.xml', ".html", ".htm"):
             #     return "<h2>Unable to upload a file: This file type is not supported.</h2>"
             #q: why this is removed? do we use non-xml files?
             process(upload, spamwriter)
+            #debug("{} processed".format(upload.raw_filename))
             #debug(upload.filename) #working, but cyrillic filenames is not working
         if len(uploads) > 1:
             name += "_multiple"

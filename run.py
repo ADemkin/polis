@@ -12,6 +12,9 @@ from io import StringIO
 # scp ~/impo.py root@138.197.223.128:/var/tmp/impo.py
 # все area, floor, corpus, section, entrance с дефисом перед ним нужно преобразовать в без дефиса!
 
+ROOT = '/var/tmp/polis/static/'
+STATIC = 'var/tmp/static/'
+
 # VARIABLE / table name # old name
 ID_DDU_HEADER = 'ID'  # 'ID_DDU',
 DDU_DOC_DESC_DATE_HEADER = 'Дата ДДУ'  # 'DduDocDesc_date',
@@ -477,62 +480,44 @@ def parseAddress(data):
     return result
 
 
-'''
-баг крыма заключается в том, что в xml файле последовательно идут сначала данные юрлица
-и сразу данные физица. Можно разделять эти два типа данных и выбирать данные физлица
-в случае присутствия сразу двух полей
-<Owner>
-    <ID_Subject>091010000016119</ID_Subject>
-    <Organization>
-        <Code_SP>007002001000</Code_SP>
-        <Content>ОБЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ &quot;ГУРЗУФ РИВЬЕРА&quot;, ИНН 9103004807</Content>
-        <Code_OPF>009002004000</Code_OPF>
-        <Name>ОБЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ &quot;ГУРЗУФ РИВЬЕРА&quot;</Name>
-    </Organization>
-</Owner>
-<Owner>
-    <ID_Subject>091010000059150</ID_Subject>
-    <Person>
-        <Code_SP>007003001000</Code_SP>
-        <Content>Петров Антон Дмитриевич</Content>
-        <FIO>
-            <Surname>Петров</Surname>
-            <First>Антон</First>
-            <Patronymic>Дмитриевич</Patronymic>
-        </FIO>
-    </Person>
-</Owner>
 
-'''
+
+def check_if_owner_is_a_person(owner):
+    if "'" in owner or '"' in owner:
+        return False
+    return True
 
 
 def getOwners(elem):
     owners = list()
+
     for t in elem.findall('Owner'):
         tag = t.find('Person') or \
               t.find('Organization') or \
               t.find('Governance')
         name = tag.findtext('Content')
         owners.append(name)
-        # debug
-        #debug(name)
-    # debug("owners processed")
-    return owners
+    # Bug workaround
+    persons = [owner for owner in owners if check_if_owner_is_a_person(owner)]
+    organisations = [owner for owner in owners if not check_if_owner_is_a_person(owner)]
+    result = persons or organisations
+    return result
 
 
 def process(input_file, spamwriter):
     
     inputFile = input_file.file
     filename = input_file.raw_filename
-    
+
     parser = xml.etree.ElementTree.XMLParser(encoding="UTF-8")
     root = xml.etree.ElementTree.parse(inputFile, parser).getroot()
-    cadastralNumber = root.find('ReestrExtract'
-        ).find('ExtractObjectRight'
-        ).find('ExtractObject'
-        ).find('ObjectRight'
-        ).find('ObjectDesc'
-        ).findtext('CadastralNumber').strip()
+    cadastralNumber = root.find('ReestrExtract') \
+        .find('ExtractObjectRight') \
+        .find('ExtractObject') \
+        .find('ObjectRight') \
+        .find('ObjectDesc') \
+        .findtext('CadastralNumber') \
+        .strip()
     res1 = root.find('ReestrExtract').find('ExtractObjectRight')
     res2 = res1.find('ExtractObject').find('ObjectRight')
     elems = res2.findall('ShareHolding')
@@ -672,12 +657,12 @@ def do_upload():
 
 @route('/static/<filename:path>')
 def send_static(filename):
-    return static_file(filename, root='var/tmp/static/')
+    return static_file(filename, root='static/') # TODO: change root to STATIC
 
 
 @route('/')
 def index():
-    return static_file("index.html", root="var/tmp/static/")
+    return static_file("index.html", root="static/") # TODO: change root to ROOT
 
 
 if __name__ == '__main__':

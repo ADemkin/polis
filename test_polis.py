@@ -1,5 +1,5 @@
 import unittest
-import polis as impo
+import run as impo
 
 # python3 -m unittest test_impo
 
@@ -14,14 +14,13 @@ class TestStringMethods(unittest.TestCase):
         # check that s.split fails when the separator is not a string
         with self.assertRaises(TypeError):
             s.split(2)
-            
+        
     
     def test_headers(self):
         s = impo.ID_DDU_HEADER
-        e = 'Номер ДДУ'
+        e = 'ID'
         self.assertEqual(s,e)
         
-
 
     def test_balkany(self):
         s = "Договор участия в долевом строительстве жилого многоквартирного дома по адресу: Санкт-Петербург, Будапештская улица, дом 102, литера А oт 14.11.2016 №134нп-БАЛ/12-15Г"

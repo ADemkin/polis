@@ -414,10 +414,10 @@ def parseAddress(data):
     # corpus
     tmp = re.compile("[;., ]+([\d.]+)[- ]*корпус").search(data)
     tmp = tmp or re.compile("корпус{eq}(.+?){sep}".format_map(FMTS)).search(data)
-    tmp = tmp or re.compile("блок{eq}([^,; ]+?){sep}".format_map(FMTS)).search(data)
+    tmp = tmp or re.compile("блоки?{eq}([^,; ]+?){sep}".format_map(FMTS)).search(data)
     tmp = tmp or re.compile(", (\d+?) блок{sep}".format_map(FMTS)).search(data)
     # tmp = tmp or re.compile("блок[: ]*(.+?)$").search(data)
-    debug(tmp.groups())
+    #debug(tmp.groups())
     tmp = tmp and tmp.groups()[0] or ""
     #debug(tmp)
     result[CORPUS_HEADER] = wrap_data_like_value(tmp)
@@ -483,7 +483,7 @@ def parseAddress(data):
 
 
 
-def check_if_owner_is_a_person(owner):
+def is_person(owner):
     if "'" in owner or '"' in owner:
         return False
     return True
@@ -491,21 +491,19 @@ def check_if_owner_is_a_person(owner):
 
 def getOwners(elem):
     owners = list()
-
     for t in elem.findall('Owner'):
         tag = t.find('Person') or \
               t.find('Organization') or \
               t.find('Governance')
         name = tag.findtext('Content')
         owners.append(name)
-    # Bug workaround
-    persons = [owner for owner in owners if check_if_owner_is_a_person(owner)]
-    organisations = [owner for owner in owners if not check_if_owner_is_a_person(owner)]
+    persons = [owner for owner in owners if is_person(owner)]
+    organisations = [owner for owner in owners if not is_person(owner)]
     result = persons or organisations
     return result
 
 
-def check_if_root_does_not_contain_data(root):
+def has_no_data(root):
     notice = root.find('ReestrExtract').find('NoticelObj')
     if notice:
         return True
@@ -519,8 +517,8 @@ def process(input_file, spamwriter):
     parser = xml.etree.ElementTree.XMLParser(encoding="UTF-8")
     root = xml.etree.ElementTree.parse(inputFile, parser).getroot()
     
-    if check_if_root_does_not_contain_data(root):
-        debug('{} contain no data to parse'.format(filename))
+    if has_no_data(root):
+        debug('{} has no data to parse'.format(filename))
         return
     
     cadastralNumber = root.find('ReestrExtract') \
@@ -588,7 +586,6 @@ def process(input_file, spamwriter):
         res[OWNERS_HEADER] = ", ".join(owners)
         for owner in owners:
             if ownersCount[owner] >= 7:
-                # res[WHOLESALE_HEADER] = "оптовый"
                 res[WHOLESALE_HEADER] = ownersCount[owner]
         
         # loan
@@ -604,16 +601,9 @@ def process(input_file, spamwriter):
                 res[LOAN_DURATION_HEADER] = tmp.findtext('Term')
             curr = elem.find("Encumbrance").find("Owner")
             if curr:
-                # res['loanOwnerId'] = curr.findtext('ID_Subject')
-                # if curr.find('Organization'):
-                    # res['loanOwnerName'] = curr.find('Organization').findtext('Name')
-                    # res['loanOwnerINN'] = curr.find('Organization').findtext('INN')
-                # change person to bank
-                # if curr.find('Person'):
-                #     res[LOAN_OWNER_NAME_HEADER] = curr.find('Person').findtext('Content')
                 if curr.find('Organization'):
                     res[LOAN_OWNER_NAME_HEADER]= curr.find('Organization').findtext('Name')
-        #
+        
         # Type_owner
         if "'" in res[OWNERS_HEADER] or '"' in res[OWNERS_HEADER]:
             res[OWNER_TYPE_HEADER] = "ЮЛ"

@@ -504,6 +504,16 @@ def getOwners(elem):
     return result
 
 
+def check_if_root_does_not_contain_data(root):
+
+    notice = root.find('ReestrExtract').find('NoticelObj')
+    if notice:
+        return True
+    return False
+    
+    
+    
+
 def process(input_file, spamwriter):
     
     inputFile = input_file.file
@@ -511,6 +521,16 @@ def process(input_file, spamwriter):
 
     parser = xml.etree.ElementTree.XMLParser(encoding="UTF-8")
     root = xml.etree.ElementTree.parse(inputFile, parser).getroot()
+    
+    #TODO: Добавить проверку, что в файле есть данные в прицнипе, например как в Покровский к 2
+
+    if check_if_root_does_not_contain_data(root):
+        debug('{} contain no data to parse'.format(filename))
+        return
+    
+        
+    
+    
     cadastralNumber = root.find('ReestrExtract') \
         .find('ExtractObjectRight') \
         .find('ExtractObject') \
@@ -636,7 +656,7 @@ def do_upload():
             #     return "<h2>Unable to upload a file: This file type is not supported.</h2>"
             #q: why this is removed? do we use non-xml files?
             process(upload, spamwriter)
-            #debug("{} processed".format(upload.raw_filename))
+            debug("{} processed".format(upload.raw_filename))
             #debug(upload.filename) #working, but cyrillic filenames is not working
         if len(uploads) > 1:
             name += "_multiple"

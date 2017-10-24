@@ -27,7 +27,7 @@ ROOMS_HEADER = 'Кол-во комнат'  # 'rooms'
 AREA_HEADER = 'Площадь'  # 'area'
 FLOOR_HEADER = 'Этаж'  # 'floor'
 OBJECT_TYPE_HEADER = 'Тип помещения'  # 'type_object'
-OBJECT_HEADER = '№ объекта'  # 'object'
+OBJECT_NUMBER_HEADER = '№ объекта'  # 'object'
 TYPE_HEADER = 'Тип_исх'  # 'type',
 CORPUS_HEADER = 'Корпус'  # 'corpus'
 SECTION_HEADER = 'Секция'  # 'section'
@@ -51,6 +51,40 @@ PROJECT_HEADER = 'Проект'
 GLORAX_COMPETITOR_HEADER = 'Конкурент проекта Glorax'
 
 
+
+# ID+
+# № ЗУ+
+# Проект+
+# Объект+
+# Конкурент проекта Glorax+
+# Название ДДУ+
+# Дата ДДУ+
+# № ДДУ+
+# Дата регистрации ДДУ+
+# № регистрации ДДУ+
+# Тип договора+
+# Объект и адрес+
+# Адрес+
+# Корпус+
+# Секция+
+# Подъезд+
+# Тип помещения+
+# Тип_исх+
+# Кол-во комнат+
+# Площадь+
+# Этаж+
+# № объекта+
+# ФИО+
+# ФЛ/ЮЛ+
+# Кол-во купленных лотов+
+# Дата регистрации залога
+# Срок залога
+# Тип залога
+# № залога
+# Банк
+
+
+
 # all table headers in appearance order
 ALL_KEYS = [
     ID_DDU_HEADER,
@@ -58,34 +92,32 @@ ALL_KEYS = [
     PROJECT_HEADER,
     SOURCE_FILE_HEADER,
     GLORAX_COMPETITOR_HEADER,
+    DDU_DESC_HEADER,
     DDU_DOC_DESC_DATE_HEADER,
-    DDU_DOC_DESC_NUMBER_HEADER, #'DduDocDesc_number',
+    DDU_DOC_DESC_NUMBER_HEADER,
     DDU_DATE_HEADER,
     DDU_REG_NUMBER_HEADER,
     DOGOVOR_TYPE_HEADER,
+    FULL_ADDRESS_HEADER,
     ADRESS_HEADER,
-    ROOMS_HEADER,
-    AREA_HEADER,
-    FLOOR_HEADER,
-    OBJECT_TYPE_HEADER,
-    OBJECT_HEADER,
-    TYPE_HEADER,
     CORPUS_HEADER,
     SECTION_HEADER,
     ENTRANCE_HEADER,
+    OBJECT_TYPE_HEADER,
+    TYPE_HEADER,
+    ROOMS_HEADER,
+    AREA_HEADER,
+    FLOOR_HEADER,
+    OBJECT_NUMBER_HEADER,
     OWNERS_HEADER,
     OWNER_TYPE_HEADER,
+    WHOLESALE_HEADER,
     LOAN_DATE_HEADER,
     LOAN_DURATION_HEADER,
     LOAN_NAME_HEADER,
     LOAN_NUMBER_HEADER,
     LOAN_OWNER_NAME_HEADER,
-    DDU_DESC_HEADER,
-    FULL_ADDRESS_HEADER,
-    WHOLESALE_HEADER,
-    
     #CHECK_THIS_FIELD
-
 ]
 
 
@@ -321,7 +353,7 @@ def trim_area(value):
 def parseExtraFields(data):
     result = dict()
     data[FLOOR_HEADER] = data[FLOOR_HEADER] or ""
-    data[OBJECT_HEADER] = data[OBJECT_HEADER] or ""
+    data[OBJECT_NUMBER_HEADER] = data[OBJECT_NUMBER_HEADER] or ""
 
     #
     area_value = data[AREA_HEADER].replace(",", ".")
@@ -363,7 +395,7 @@ def parseExtraFields(data):
          "офис" in full_address or \
          "встроен" in data[TYPE_HEADER] or \
          "нежил" in data[TYPE_HEADER] and data[FLOOR_HEADER] == "1" or \
-         "н" in data[OBJECT_HEADER] and BOOL(lambda: float(data[FLOOR_HEADER]) <= 3):
+         "н" in data[OBJECT_NUMBER_HEADER] and BOOL(lambda: float(data[FLOOR_HEADER]) <= 3):
         #
         result[OBJECT_TYPE_HEADER] = "нежилое"
     elif not data[TYPE_HEADER] and not full_address or \
@@ -402,7 +434,7 @@ def parseAddress(data):
     
     tmp = re.compile("строительный номер[: ]+(.+?),").search(data)
     tmp = tmp or re.compile("номер объекта[: ]*(.+?),").search(data)
-    result[OBJECT_HEADER] = tmp and wrap_data_like_value(tmp.groups()[0]) or ""
+    result[OBJECT_NUMBER_HEADER] = tmp and wrap_data_like_value(tmp.groups()[0]) or ""
     
     tmp = re.compile("проектная.*планируемая.*площадь[: -]+(.*?) кв.м").search(data)
     tmp = tmp or re.compile("общая площадь[: -]+(.*?) кв.м").search(data)

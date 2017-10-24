@@ -45,16 +45,19 @@ DDU_DESC_HEADER = 'Название ДДУ' # 'DduDocDesc
 FULL_ADDRESS_HEADER = 'Объект и адрес' # full_address
 CHECK_THIS_FIELD = "проверить!" # check!
 
-SOURCE_FILE_HEADER = 'исходный файл'
+SOURCE_FILE_HEADER = 'Объект'
 
-PROJECT_HEADER = ''
-NEW_OBJECT_HEADER = ''
-GLORAX_PROJECT_COMPETITOR_HEADER = ''
+PROJECT_HEADER = 'Проект'
+GLORAX_COMPETITOR_HEADER = 'Конкурент проекта Glorax'
 
 
 # all table headers in appearance order
 ALL_KEYS = [
     ID_DDU_HEADER,
+    NUM_UCHASTOK_HEADER,
+    PROJECT_HEADER,
+    SOURCE_FILE_HEADER,
+    GLORAX_COMPETITOR_HEADER,
     DDU_DOC_DESC_DATE_HEADER,
     DDU_DOC_DESC_NUMBER_HEADER, #'DduDocDesc_number',
     DDU_DATE_HEADER,
@@ -79,10 +82,9 @@ ALL_KEYS = [
     LOAN_OWNER_NAME_HEADER,
     DDU_DESC_HEADER,
     FULL_ADDRESS_HEADER,
-    NUM_UCHASTOK_HEADER,
     WHOLESALE_HEADER,
-    SOURCE_FILE_HEADER,
-    CHECK_THIS_FIELD
+    
+    #CHECK_THIS_FIELD
 
 ]
 
@@ -505,39 +507,30 @@ def getOwners(elem):
 
 
 def check_if_root_does_not_contain_data(root):
-
     notice = root.find('ReestrExtract').find('NoticelObj')
     if notice:
         return True
     return False
-    
-    
-    
+
 
 def process(input_file, spamwriter):
-    
     inputFile = input_file.file
     filename = os.path.splitext(input_file.raw_filename)[0]
-
+    
     parser = xml.etree.ElementTree.XMLParser(encoding="UTF-8")
     root = xml.etree.ElementTree.parse(inputFile, parser).getroot()
     
-    #TODO: Добавить проверку, что в файле есть данные в прицнипе, например как в Покровский к 2
-
     if check_if_root_does_not_contain_data(root):
         debug('{} contain no data to parse'.format(filename))
         return
     
-        
-    
-    
     cadastralNumber = root.find('ReestrExtract') \
-        .find('ExtractObjectRight') \
-        .find('ExtractObject') \
-        .find('ObjectRight') \
-        .find('ObjectDesc') \
-        .findtext('CadastralNumber') \
-        .strip()
+                          .find('ExtractObjectRight') \
+                          .find('ExtractObject') \
+                          .find('ObjectRight') \
+                          .find('ObjectDesc') \
+                          .findtext('CadastralNumber') \
+                          .strip()
     res1 = root.find('ReestrExtract').find('ExtractObjectRight')
     res2 = res1.find('ExtractObject').find('ObjectRight')
     elems = res2.findall('ShareHolding')
@@ -678,13 +671,13 @@ def do_upload():
 @route('/static/<filename:path>')
 def send_static(filename):
     # use STATIC on deploy. Use 'static/' on development
-    return static_file(filename, root=STATIC) # TODO: change root to STATIC
+    return static_file(filename, root='static/')
 
 
 @route('/')
 def index():
     # use ROOT on deploy. Use 'static/' on development
-    return static_file("index.html", root=ROOT) # TODO: change root to ROOT
+    return static_file("index.html", root='static/')
 
 
 if __name__ == '__main__':

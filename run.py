@@ -6,7 +6,7 @@ import xml.etree.ElementTree
 import csv
 import os
 import traceback
-from bottle import route, run, template, post, request, HTTPResponse, static_file
+from bottle import route, run, template, post, request, HTTPResponse, static_file, redirect
 from io import StringIO
 
 # scp ~/impo.py root@138.197.223.128:/var/tmp/impo.py
@@ -413,8 +413,9 @@ def parseAddress(data):
     
     # corpus
     tmp = re.compile("[;., ]+([\d.]+)[- ]*корпус").search(data)
-    tmp = tmp or re.compile("корпус{eq}(.+?){sep}".format_map(FMTS)).search(data)
-    tmp = tmp or re.compile("блоки?{eq}([^,; ]+?){sep}".format_map(FMTS)).search(data)
+    tmp = tmp or re.compile("корпус{eq}(.+?){sep}".format_map(FMTS)).search(data)  # oleg
+    #tmp = tmp or re.compile("корпус{eq}([\d\.]+?){sep}".format_map(FMTS)).search(data)  # anton
+    tmp = tmp or re.compile("блоки?{eq}([^,; ]+?){sep}".format_map(FMTS)).search(data) #edited anton
     tmp = tmp or re.compile(", (\d+?) блок{sep}".format_map(FMTS)).search(data)
     # tmp = tmp or re.compile("блок[: ]*(.+?)$").search(data)
     #debug(tmp.groups())
@@ -631,6 +632,8 @@ def do_upload():
         spamwriter = csv.DictWriter(output, fieldnames=ALL_KEYS)
         spamwriter.writeheader()
         uploads = request.files.getall('upload')
+        if len(uploads) == 0:
+            return "<h4>nothing to upload</h4></br><a href='/'>go back</a>"
         for upload in uploads:
             # todo: make a workaround about raw_filename and encode it correctly (utf-8 i think)
             name, ext = os.path.splitext(upload.filename)

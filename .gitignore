@@ -3,7 +3,7 @@
 /archive
 /xml
 /xml 1
-
+/errors
 
 # virtualenv
 .venv

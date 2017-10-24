@@ -677,12 +677,14 @@ def do_upload():
 
 @route('/static/<filename:path>')
 def send_static(filename):
-    return static_file(filename, root='static/') # TODO: change root to STATIC
+    # use STATIC on deploy. Use 'static/' on development
+    return static_file(filename, root=STATIC) # TODO: change root to STATIC
 
 
 @route('/')
 def index():
-    return static_file("index.html", root="static/") # TODO: change root to ROOT
+    # use ROOT on deploy. Use 'static/' on development
+    return static_file("index.html", root=ROOT) # TODO: change root to ROOT
 
 
 if __name__ == '__main__':

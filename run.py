@@ -83,7 +83,7 @@ ALL_KEYS = [
     LOAN_NAME_HEADER,
     LOAN_NUMBER_HEADER,
     LOAN_OWNER_NAME_HEADER,
-    #CHECK_THIS_FIELD
+    CHECK_THIS_FIELD
 ]
 
 
@@ -315,7 +315,6 @@ def trim_area(value):
         return value
 
 
-# main parse function
 def parseExtraFields(data):
     result = dict()
     data[FLOOR_HEADER] = data[FLOOR_HEADER] or ""
@@ -378,7 +377,7 @@ def wrap_data_like_value(s):
     tmp = re.sub("[.,/]$", "", s)
     return '="' + tmp + '"'
 
-#q: что это такое?
+
 #разделитель
 FMTS = dict(
     section="[\-\d./]+",
@@ -411,12 +410,14 @@ def parseAddress(data):
     tmp = tmp or re.compile("строительный адрес[: ]+(.*?)[.;]*$").search(data)
     # tmp = tmp or re.compile("уч. (.*?),кад.").search(data)
     result[ADRESS_HEADER] = tmp and tmp.groups()[0] or ""
-
+    
+    # corpus
     tmp = re.compile("[;., ]+([\d.]+)[- ]*корпус").search(data)
     tmp = tmp or re.compile("корпус{eq}(.+?){sep}".format_map(FMTS)).search(data)
     tmp = tmp or re.compile("блок{eq}([^,; ]+?){sep}".format_map(FMTS)).search(data)
     tmp = tmp or re.compile(", (\d+?) блок{sep}".format_map(FMTS)).search(data)
     # tmp = tmp or re.compile("блок[: ]*(.+?)$").search(data)
+    debug(tmp.groups())
     tmp = tmp and tmp.groups()[0] or ""
     #debug(tmp)
     result[CORPUS_HEADER] = wrap_data_like_value(tmp)

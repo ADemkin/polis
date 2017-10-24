@@ -517,7 +517,7 @@ def check_if_root_does_not_contain_data(root):
 def process(input_file, spamwriter):
     
     inputFile = input_file.file
-    filename = input_file.raw_filename
+    filename = os.path.splitext(input_file.raw_filename)[0]
 
     parser = xml.etree.ElementTree.XMLParser(encoding="UTF-8")
     root = xml.etree.ElementTree.parse(inputFile, parser).getroot()

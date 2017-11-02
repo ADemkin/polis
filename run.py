@@ -411,16 +411,28 @@ def parseAddress(data):
     # tmp = tmp or re.compile("уч. (.*?),кад.").search(data)
     result[ADRESS_HEADER] = tmp and tmp.groups()[0] or ""
     
-    # corpus
-    tmp = re.compile("[;., ]+([\d.]+)[- ]*корпус").search(data)
-    tmp = tmp or re.compile("корпус{eq}(.+?){sep}".format_map(FMTS)).search(data)  # oleg
-    #tmp = tmp or re.compile("корпус{eq}([\d\.]+?){sep}".format_map(FMTS)).search(data)  # anton
-    tmp = tmp or re.compile("блоки?{eq}([^,; ]+?){sep}".format_map(FMTS)).search(data) #edited anton
-    tmp = tmp or re.compile(", (\d+?) блок{sep}".format_map(FMTS)).search(data)
+    # corpus fucked up
+    # tmp = re.compile("[;., ]+([\d.]+)[- ]*корпус").search(data)
+    # #tmp = tmp or re.compile("корпус{eq}(.+?){sep}".format_map(FMTS)).search(data)  # oleg
+    # #tmp = tmp or re.compile("корпус{eq}([\w\d^,; \.]+?){sep}".format_map(FMTS)).search(data)  # anton
+    # tmp = tmp or re.compile("корпус{eq}([\d\.]+?){sep}".format_map(FMTS)).search(data)  # anton
+    # tmp = tmp or re.compile("блоки?{eq}([^,; ]+?){sep}".format_map(FMTS)).search(data) #edited anton
+    # tmp = tmp or re.compile(", (\d+?) блок{sep}".format_map(FMTS)).search(data)
+    # # tmp = tmp or re.compile("блок[: ]*(.+?)$").search(data)
+    
+    # Corpus recovered
+    tmp = re.compile("[;., ]+([\d.]+)[- ]*корпус").search(data) #  Oleg
+    
+    tmp = tmp or re.compile("корпус{eq}(.+?){sep}".format_map(FMTS)).search(data) #  Oleg
+    
+    #tmp = tmp or re.compile("блок{eq}([^,; ]+?){sep}".format_map(FMTS)).search(data) #  Oleg
+    tmp = tmp or re.compile("блоки?{eq}([^,; ]+?){sep}".format_map(FMTS)).search(data)  # Anton
+    
+    tmp = tmp or re.compile(", (\d+?) блок{sep}".format_map(FMTS)).search(data) #  Oleg
     # tmp = tmp or re.compile("блок[: ]*(.+?)$").search(data)
     #debug(tmp.groups())
     tmp = tmp and tmp.groups()[0] or ""
-    #debug(tmp)
+    debug(tmp)
     result[CORPUS_HEADER] = wrap_data_like_value(tmp)
 
     tmp = re.compile("секция{eq}({section})[\(\s]*секция[: -]*({section}){sep}".format_map(FMTS)).search(data)

@@ -156,6 +156,7 @@ SECTION = [
 
 CORPUS_TYPOS = [
     'корпус:',
+    'копрус',
     'кор.',
     'коропус ',
     'корпсу ',
@@ -170,8 +171,12 @@ CORPUS_TYPOS = [
     'коопус ',
     'коорпус',
     'копрус ',
+    'корупс',
     'коп.',
     'Корпус ',
+    'корус',
+    'корпсус',
+    'орпус',
     'корапус ',
     'КОРПУС ',
     'юлок ',
@@ -184,11 +189,16 @@ CORPUS_TYPOS = [
     '№Блока-',
     ' пус -',
     '. к. ',
+    ', к.',
     'корпуc',
     'корпусс',
     'Блок ',
     'в корпусе ',
-    'ьлок'
+    'ьлок',
+    # todo: уточинить по поводу домов
+    'дом №', # this
+    'доме №', # this
+    'дома №', # and this
     ]
 
 DOGOVOR_UCHASTIA = [
@@ -419,14 +429,11 @@ def parseAddress(data):
     # tmp = tmp or re.compile("уч. (.*?),кад.").search(data)
     result[ADRESS_HEADER] = tmp and tmp.groups()[0] or ""
     
-
     # Corpus
-    #tmp = re.compile("[^\d][;., ]+([\d.]+)[- ]*корпус").search(data) #  Oleg
-    tmp = re.compile("[^\d][;.,][ ]{0,3}([\d.]+)[- ]*корпус[;,.]?[\s]+[^\d]").search(data) #  Anton
-    debug(tmp)
+    tmp = re.compile("[^\d][;.,][ ]{0,3}([\d.]+)[- ]*корпус[;,.]?[\s]+[^\d]").search(data)  # Anton
     tmp = tmp or re.compile(" корпус{eq}й?([\d\./\-]+){sep}".format_map(FMTS)).search(data)  # Anton
     tmp = tmp or re.compile("[\s\(]?блоки?{eq}([\d\.]+){sep}".format_map(FMTS)).search(data)  # Anton
-    tmp = tmp or re.compile(", (\d+?)[-й]* блок{sep}".format_map(FMTS)).search(data) #  Oleg
+    tmp = tmp or re.compile(", (\d+?)[-й]* блок{sep}".format_map(FMTS)).search(data)  # Oleg
     tmp = tmp and tmp.groups()[0] or ""
     result[CORPUS_HEADER] = wrap_data_like_value(tmp)
 

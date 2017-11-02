@@ -14,5 +14,6 @@ ENV/
 # mypy
 .mypy_cache/
 .idea/workspace.xml
+.idea/
 archive/
 xml/

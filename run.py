@@ -154,7 +154,7 @@ SECTION = [
     'сеция ',
     'скц. ']
 
-CORPUS = [
+CORPUS_TYPOS = [
     'корпус:',
     'кор.',
     'коропус ',
@@ -179,12 +179,15 @@ CORPUS = [
     '№ блока',
     '№блока-',
     '№блока ',
+    '№Блока-',
     ' пус -',
     '. к. ',
     'корпуc',
     'корпусс',
     'Блок ',
-    'в корпусе ']
+    'в корпусе ',
+    'ьлок'
+    ]
 
 DOGOVOR_UCHASTIA = [
     'Договор участия в долевос строительстве ',
@@ -230,7 +233,7 @@ def replaceTyposInAddress(data):
         data = data.replace(to_replace, " в осях: ")
     for to_replace in SECTION:
         data = data.replace(to_replace, " секция ")
-    for to_replace in CORPUS:
+    for to_replace in CORPUS_TYPOS:
         data = data.replace(to_replace, " корпус ")
     for to_replace in ROOMS_NUMBER:
         data = data.replace(to_replace, " количество комнат ")
@@ -384,7 +387,7 @@ FMTS = dict(
     # sep="[;,)( ]+",  # Oleg
     sep="[;,)( ]+",  # Anton
     # eq="[: №-]*"  # Oleg
-    eq="[.: №-]*"  # Anton
+    eq="[.: №К\-]*"  # Anton
 )
 
 
@@ -416,7 +419,7 @@ def parseAddress(data):
 
     # Corpus
     tmp = re.compile("[;., ]+([\d.]+)[- ]*корпус").search(data) #  Oleg
-    tmp = tmp or re.compile(" корпус{eq}([\d\./]+?){sep}".format_map(FMTS)).search(data)  # Anton
+    tmp = tmp or re.compile(" корпус{eq}й?([\d\./]+?){sep}".format_map(FMTS)).search(data)  # Anton
     tmp = tmp or re.compile("[\s\(]?блоки?{eq}([\d\.\)]+?){sep}".format_map(FMTS)).search(data)  # Anton
     tmp = tmp or re.compile(", (\d+?) блок{sep}".format_map(FMTS)).search(data) #  Oleg
     tmp = tmp and tmp.groups()[0] or ""

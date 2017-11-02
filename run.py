@@ -422,7 +422,7 @@ def parseAddress(data):
 
     # Corpus
     #tmp = re.compile("[^\d][;., ]+([\d.]+)[- ]*корпус").search(data) #  Oleg
-    tmp = re.compile("[^\d][;.,][ ]{0,3}([\d.]+)[- ]*корпус[;,.]?\s[^\d]").search(data) #  Anton
+    tmp = re.compile("[^\d][;.,][ ]{0,3}([\d.]+)[- ]*корпус[;,.]?[\s]+[^\d]").search(data) #  Anton
     debug(tmp)
     tmp = tmp or re.compile(" корпус{eq}й?([\d\./\-]+){sep}".format_map(FMTS)).search(data)  # Anton
     tmp = tmp or re.compile("[\s\(]?блоки?{eq}([\d\.]+){sep}".format_map(FMTS)).search(data)  # Anton

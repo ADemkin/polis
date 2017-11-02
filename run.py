@@ -413,33 +413,13 @@ def parseAddress(data):
     # tmp = tmp or re.compile("уч. (.*?),кад.").search(data)
     result[ADRESS_HEADER] = tmp and tmp.groups()[0] or ""
     
-    # corpus fucked up
-    # tmp = re.compile("[;., ]+([\d.]+)[- ]*корпус").search(data)
-    # #tmp = tmp or re.compile("корпус{eq}(.+?){sep}".format_map(FMTS)).search(data)  # oleg
-    # #tmp = tmp or re.compile("корпус{eq}([\w\d^,; \.]+?){sep}".format_map(FMTS)).search(data)  # anton
-    # tmp = tmp or re.compile("корпус{eq}([\d\.]+?){sep}".format_map(FMTS)).search(data)  # anton
-    # tmp = tmp or re.compile("блоки?{eq}([^,; ]+?){sep}".format_map(FMTS)).search(data) #edited anton
-    # tmp = tmp or re.compile(", (\d+?) блок{sep}".format_map(FMTS)).search(data)
-    # # tmp = tmp or re.compile("блок[: ]*(.+?)$").search(data)
-    
-    # Corpus recovered
+
+    # Corpus
     tmp = re.compile("[;., ]+([\d.]+)[- ]*корпус").search(data) #  Oleg
-    debug("1:{}".format(tmp))
-    
-    #tmp = tmp or re.compile("корпус{eq}(.+?){sep}".format_map(FMTS)).search(data) #  Oleg
-    #tmp = tmp or re.compile(" корпус{eq}([\d\./]+?){sep}".format_map(FMTS)).search(data)  # Anton working
     tmp = tmp or re.compile(" корпус{eq}([\d\./]+?){sep}".format_map(FMTS)).search(data)  # Anton
-    debug("2:{}".format(tmp))
-    
-    #tmp = tmp or re.compile("блок{eq}([^,; ]+?){sep}".format_map(FMTS)).search(data) #  Oleg
-    tmp = tmp or re.compile("[\s\(]?блоки?{eq}([\d\.\)]+?){sep}".format_map(FMTS)).search(data)  # Anton sep = [;,)( ]+
-    debug("3:{}".format(tmp))
-    
+    tmp = tmp or re.compile("[\s\(]?блоки?{eq}([\d\.\)]+?){sep}".format_map(FMTS)).search(data)  # Anton
     tmp = tmp or re.compile(", (\d+?) блок{sep}".format_map(FMTS)).search(data) #  Oleg
-    # tmp = tmp or re.compile("блок[: ]*(.+?)$").search(data) #  Oleg
-    debug("4:{}".format(tmp))
     tmp = tmp and tmp.groups()[0] or ""
-    #debug(tmp)
     result[CORPUS_HEADER] = wrap_data_like_value(tmp)
 
     tmp = re.compile("секция{eq}({section})[\(\s]*секция[: -]*({section}){sep}".format_map(FMTS)).search(data)
@@ -551,7 +531,6 @@ def process(input_file, spamwriter):
     res1 = root.find('ReestrExtract').find('ExtractObjectRight')
     res2 = res1.find('ExtractObject').find('ObjectRight')
     elems = res2.findall('ShareHolding')
-    # elems = list(x for x in elems if x.findtext('ID_DDU') == '12511551035')
 
     ownersCount = dict()
     for elem in elems:
@@ -561,15 +540,6 @@ def process(input_file, spamwriter):
     for elem in elems:
         res = dict()
         res[NUM_UCHASTOK_HEADER] = cadastralNumber
-
-        # debug(xml.etree.ElementTree.tostring(elem, encoding="utf8").decode("utf8"))
-        # return
-
-        # debug('ID_DDU = ' + str(elem.findtext('ID_DDU')))
-
-        # if elem.findtext('ID_DDU') == '3285443000':
-        #     debug("TROLOLO:")
-        #     debug(xml.etree.ElementTree.tostring(elem, encoding="utf8").decode("utf8"))
 
         # res['ID_DDU'] = elem.findtext('ID_DDU')
         # if not res['ID_DDU']:
@@ -605,8 +575,7 @@ def process(input_file, spamwriter):
         owners = getOwners(elem)
         res[OWNERS_HEADER] = ", ".join(owners)
         for owner in owners:
-            if ownersCount[owner] >= 7:
-                res[WHOLESALE_HEADER] = ownersCount[owner]
+            res[WHOLESALE_HEADER] = ownersCount[owner]
         
         # loan
         curr = elem.find("Encumbrance")
@@ -634,13 +603,10 @@ def process(input_file, spamwriter):
         
         # set extra fields
         res.update(parseExtraFields(res))
+        
         # output all fields as csv row
         spamwriter.writerow(res)
 
-        # if elem.findtext('ID_DDU') == '11085187031':
-        #     debug("RESULT:")
-        #     debug(res['address'])
-        #     return
 
 
 @route('/upload', method='POST')
@@ -692,8 +658,5 @@ def index():
 
 
 if __name__ == '__main__':
-    # spamwriter = csv.DictWriter(sys.stdout, fieldnames=ALL_KEYS)
-    # spamwriter.writeheader()
-    # process(sys.stdin, spamwriter)
     run(host='localhost', port=9999, reloader=True, debug=True)  # TODO: remove reloader on release
 

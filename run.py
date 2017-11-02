@@ -381,7 +381,8 @@ def wrap_data_like_value(s):
 #разделитель
 FMTS = dict(
     section="[\-\d./]+",
-    sep="[;,)( ]+",
+    # sep="[;,)( ]+",  # Oleg
+    sep="[;,)( ]+",  # Anton
     eq="[: №-]*"
 )
 
@@ -422,17 +423,22 @@ def parseAddress(data):
     
     # Corpus recovered
     tmp = re.compile("[;., ]+([\d.]+)[- ]*корпус").search(data) #  Oleg
+    #debug("1:{}".format(tmp))
     
-    tmp = tmp or re.compile("корпус{eq}(.+?){sep}".format_map(FMTS)).search(data) #  Oleg
+    #tmp = tmp or re.compile("корпус{eq}(.+?){sep}".format_map(FMTS)).search(data) #  Oleg
+    tmp = tmp or re.compile(" корпус{eq}([\d\./]+?){sep}".format_map(FMTS)).search(data)  # Anton
+    #debug("2:{}".format(tmp))
     
     #tmp = tmp or re.compile("блок{eq}([^,; ]+?){sep}".format_map(FMTS)).search(data) #  Oleg
-    tmp = tmp or re.compile("блоки?{eq}([^,; ]+?){sep}".format_map(FMTS)).search(data)  # Anton
+    tmp = tmp or re.compile("[\s\(]?блоки?{eq}([\d\.\)]+?){sep}".format_map(FMTS)).search(data)  # Anton sep = [;,)( ]+
+    #debug("3:{}".format(tmp))
     
     tmp = tmp or re.compile(", (\d+?) блок{sep}".format_map(FMTS)).search(data) #  Oleg
-    # tmp = tmp or re.compile("блок[: ]*(.+?)$").search(data)
+    # tmp = tmp or re.compile("блок[: ]*(.+?)$").search(data) #  Oleg
     #debug(tmp.groups())
+    #debug("4:{}".format(tmp))
     tmp = tmp and tmp.groups()[0] or ""
-    debug(tmp)
+    #debug(tmp)
     result[CORPUS_HEADER] = wrap_data_like_value(tmp)
 
     tmp = re.compile("секция{eq}({section})[\(\s]*секция[: -]*({section}){sep}".format_map(FMTS)).search(data)

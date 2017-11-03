@@ -14,6 +14,7 @@ from io import StringIO
 
 ROOT = '/var/tmp/polis/static/'
 STATIC = 'var/tmp/static/'
+LCOAL = 'static/'
 
 # VARIABLE / table name # old name
 ID_DDU = 'ID'  # 'ID_DDU',
@@ -663,14 +664,14 @@ def do_upload():
 
 @route('/static/<filename:path>')
 def send_static(filename):
-    # use STATIC on deploy. Use 'static/' on development
-    return static_file(filename, root='static/')
+    # use STATIC on deploy. Use LOCAL on development
+    return static_file(filename, root=STATIC)
 
 
 @route('/')
 def index():
-    # use ROOT on deploy. Use 'static/' on development
-    return static_file("index.html", root='static/')
+    # use ROOT on deploy. Use LOCAL on development
+    return static_file("index.html", root=ROOT)
 
 
 if __name__ == '__main__':

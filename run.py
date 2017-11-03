@@ -16,74 +16,74 @@ ROOT = '/var/tmp/polis/static/'
 STATIC = 'var/tmp/static/'
 
 # VARIABLE / table name # old name
-ID_DDU_HEADER = 'ID'  # 'ID_DDU',
-DDU_DOC_DESC_DATE_HEADER = 'Дата ДДУ'  # 'DduDocDesc_date',
-DDU_DOC_DESC_NUMBER_HEADER = '№ ДДУ'  # 'DduDocDesc_number'
-DDU_DATE_HEADER = 'Дата регистрации ДДУ'  # 'DduDate',
-DDU_REG_NUMBER_HEADER = '№ регистрации ДДУ'  # 'DduRegNo',
-DOGOVOR_TYPE_HEADER = 'Тип Договора'  # 'Type_dogovor',
-ADRESS_HEADER = 'Адрес'  # 'address',
-ROOMS_HEADER = 'Кол-во комнат'  # 'rooms'
-AREA_HEADER = 'Площадь'  # 'area'
-FLOOR_HEADER = 'Этаж'  # 'floor'
-OBJECT_TYPE_HEADER = 'Тип помещения'  # 'type_object'
-OBJECT_NUMBER_HEADER = '№ объекта'  # 'object'
-TYPE_HEADER = 'Тип_исх'  # 'type',
-CORPUS_HEADER = 'Корпус'  # 'corpus'
-SECTION_HEADER = 'Секция'  # 'section'
-ENTRANCE_HEADER = 'Подъезд'  # 'entrance'
-OWNERS_HEADER = 'ФИО'  # 'owners',
-OWNER_TYPE_HEADER = 'ФЛ/ЮЛ'  # 'Type_owner'
-LOAN_DATE_HEADER = 'Дата регистрации залога'  # 'loanDate'
-LOAN_DURATION_HEADER = 'Срок залога'  # 'loanDuration'
-LOAN_NAME_HEADER = 'Тип залога'  # 'loanName'
-LOAN_NUMBER_HEADER = '№ залога'  # 'loanNumber'
-LOAN_OWNER_NAME_HEADER = 'Банк'  # 'loanOwnerName' # Переделываем в Банк, сейчас здесь ФИО дольщика
-NUM_UCHASTOK_HEADER = '№ ЗУ'  # 'Num_Uchastok',
-WHOLESALE_HEADER = 'Кол-во купленных лотов'  # 'wholesale',
-DDU_DESC_HEADER = 'Название ДДУ' # 'DduDocDesc
-FULL_ADDRESS_HEADER = 'Объект и адрес' # full_address
-CHECK_THIS_FIELD = "проверить!" # check!
+ID_DDU = 'ID'  # 'ID_DDU',
+DDU_DOC_DESC_DATE = 'Дата ДДУ'  # 'DduDocDesc_date',
+DDU_DOC_DESC_NUMBER = '№ ДДУ'  # 'DduDocDesc_number'
+DDU_DATE = 'Дата регистрации ДДУ'  # 'DduDate',
+DDU_REG_NUMBER = '№ регистрации ДДУ'  # 'DduRegNo',
+DOGOVOR_TYPE = 'Тип Договора'  # 'Type_dogovor',
+ADRESS = 'Адрес'  # 'address',
+ROOMS = 'Кол-во комнат'  # 'rooms'
+AREA = 'Площадь'  # 'area'
+FLOOR = 'Этаж'  # 'floor'
+OBJECT_TYPE = 'Тип помещения'  # 'type_object'
+OBJECT_NUMBER = '№ объекта'  # 'object'
+TYPE = 'Тип_исх'  # 'type',
+CORPUS = 'Корпус'  # 'corpus'
+SECTION = 'Секция'  # 'section'
+ENTRANCE = 'Подъезд'  # 'entrance'
+OWNERS = 'ФИО'  # 'owners',
+OWNER_TYPE = 'ФЛ/ЮЛ'  # 'Type_owner'
+LOAN_DATE = 'Дата регистрации залога'  # 'loanDate'
+LOAN_DURATION = 'Срок залога'  # 'loanDuration'
+LOAN_NAME = 'Тип залога'  # 'loanName'
+LOAN_NUMBER = '№ залога'  # 'loanNumber'
+LOAN_OWNER_NAME = 'Банк'  # 'loanOwnerName' # Переделываем в Банк, сейчас здесь ФИО дольщика
+NUM_UCHASTOK = '№ ЗУ'  # 'Num_Uchastok',
+WHOLESALE = 'Кол-во купленных лотов'  # 'wholesale',
+DDU_DESC = 'Название ДДУ' # 'DduDocDesc
+FULL_ADDRESS = 'Объект и адрес' # full_address
+CHECK_THIS = "проверить!" # check!
 
-SOURCE_FILE_HEADER = 'Объект'
+SOURCE_FILE = 'Объект'
 
-PROJECT_HEADER = 'Проект'
-GLORAX_COMPETITOR_HEADER = 'Конкурент проекта Glorax'
+PROJECT = 'Проект'
+GLORAX_COMPETITOR = 'Конкурент проекта Glorax'
 
 
 # all table headers in appearance order
 ALL_KEYS = [
-    ID_DDU_HEADER,
-    NUM_UCHASTOK_HEADER,
-    PROJECT_HEADER,
-    SOURCE_FILE_HEADER,
-    GLORAX_COMPETITOR_HEADER,
-    DDU_DESC_HEADER,
-    DDU_DOC_DESC_DATE_HEADER,
-    DDU_DOC_DESC_NUMBER_HEADER,
-    DDU_DATE_HEADER,
-    DDU_REG_NUMBER_HEADER,
-    DOGOVOR_TYPE_HEADER,
-    FULL_ADDRESS_HEADER,
-    ADRESS_HEADER,
-    CORPUS_HEADER,
-    SECTION_HEADER,
-    ENTRANCE_HEADER,
-    OBJECT_TYPE_HEADER,
-    TYPE_HEADER,
-    ROOMS_HEADER,
-    AREA_HEADER,
-    FLOOR_HEADER,
-    OBJECT_NUMBER_HEADER,
-    OWNERS_HEADER,
-    OWNER_TYPE_HEADER,
-    WHOLESALE_HEADER,
-    LOAN_DATE_HEADER,
-    LOAN_DURATION_HEADER,
-    LOAN_NAME_HEADER,
-    LOAN_NUMBER_HEADER,
-    LOAN_OWNER_NAME_HEADER,
-    CHECK_THIS_FIELD
+    ID_DDU,
+    NUM_UCHASTOK,
+    PROJECT,
+    SOURCE_FILE,
+    GLORAX_COMPETITOR,
+    DDU_DESC,
+    DDU_DOC_DESC_DATE,
+    DDU_DOC_DESC_NUMBER,
+    DDU_DATE,
+    DDU_REG_NUMBER,
+    DOGOVOR_TYPE,
+    FULL_ADDRESS,
+    ADRESS,
+    CORPUS,
+    SECTION,
+    ENTRANCE,
+    OBJECT_TYPE,
+    TYPE,
+    ROOMS,
+    AREA,
+    FLOOR,
+    OBJECT_NUMBER,
+    OWNERS,
+    OWNER_TYPE,
+    WHOLESALE,
+    LOAN_DATE,
+    LOAN_DURATION,
+    LOAN_NAME,
+    LOAN_NUMBER,
+    LOAN_OWNER_NAME,
+    CHECK_THIS
 ]
 
 
@@ -91,7 +91,7 @@ def debug(*s):
     print(*s, file=sys.stderr)
 
 
-USTUPKA_PRAV = [
+USTUPKA_PRAV_TYPO = [
     'Соглашение о замене стороны ',
     'Соглашение о замене стороны в Договоре ',
     'Соглашение об уступке права требования и обязанностей ',
@@ -106,7 +106,7 @@ USTUPKA_PRAV = [
 ]
 
 
-V_OSYASH = [
+V_OSYASH_TYPO = [
     'В осях',
     'в рсях',
     'восх ',
@@ -127,14 +127,14 @@ V_OSYASH = [
     'св осях ']
 
 
-STROIT_OSI = [
+STROIT_OSI_TYPO = [
  'строит. оси:',
  'строительыне оси:',
  '. строительне оси',
  '. строительные оси ']
 
 
-SECTION = [
+SECTION_TYPO = [
     'Секция ',
     'секц.',
     'с екция ',
@@ -176,7 +176,7 @@ CORPUS_TYPOS = [
     'Корпус ',
     'корус',
     'корпсус',
-    'орпус',
+    ' орпус',
     'корапус ',
     'КОРПУС ',
     'юлок ',
@@ -201,7 +201,7 @@ CORPUS_TYPOS = [
     'дома №', # and this
     ]
 
-DOGOVOR_UCHASTIA = [
+DOGOVOR_UCHASTIA_TYPO = [
     'Договор участия в долевос строительстве ',
     'Договор Участия в Долевом строительстве ',
     'Договор участия в долевом стротиельстве ',
@@ -213,7 +213,7 @@ DOGOVOR_UCHASTIA = [
     'Договор долевого участия '
 ]
 
-ROOMS_NUMBER = [
+ROOMS_NUMBER_TYPO = [
     'Кол-во комнат ',
     'кол-во комнат',
     'Кол-во ком.',
@@ -241,13 +241,13 @@ def replaceTyposInAddress(data):
     data = data.replace("подъезд/секция", "подъезд , секция")
 
     # patterns
-    for to_replace in V_OSYASH + STROIT_OSI:
+    for to_replace in V_OSYASH_TYPO + STROIT_OSI_TYPO:
         data = data.replace(to_replace, " в осях: ")
-    for to_replace in SECTION:
+    for to_replace in SECTION_TYPO:
         data = data.replace(to_replace, " секция ")
     for to_replace in CORPUS_TYPOS:
         data = data.replace(to_replace, " корпус ")
-    for to_replace in ROOMS_NUMBER:
+    for to_replace in ROOMS_NUMBER_TYPO:
         data = data.replace(to_replace, " количество комнат ")
   
     data = data.replace("в осях ", " в осях ")
@@ -265,9 +265,9 @@ def replaceTyposInAddress(data):
 
 def replaceTyposInDduDesc(data):
     data = " " + data.replace("\n", " ").replace("  ", " ") + " "
-    for to_replace in USTUPKA_PRAV:
+    for to_replace in USTUPKA_PRAV_TYPO:
         data = data.replace(to_replace, "Соглашение об уступке ")
-    for to_replace in DOGOVOR_UCHASTIA:
+    for to_replace in DOGOVOR_UCHASTIA_TYPO:
         data = data.replace(to_replace, "Договор участия в долевом строительстве ")
     return data
 
@@ -293,30 +293,30 @@ def extractDduDocDesc(desc):
     search = search or re.compile("участия в долевом строительстве[^;,]* oт ("+DATE_REGEXP+")").search(desc)
     search = search or re.compile("Дополнительное.* соглашение[^;,]* oт ("+DATE_REGEXP+")").search(desc)
     search = search or re.compile("Соглашение об уступке[^;,]* oт ("+DATE_REGEXP+")").search(desc)
-    result[DDU_DOC_DESC_DATE_HEADER] = search and search.groups()[0]
+    result[DDU_DOC_DESC_DATE] = search and search.groups()[0]
     # parse ddu number
     search = re.compile("Договор участия в долевом строительстве.* oт[^№]*(№.*?)[;, ]").search(desc)
     search = search or re.compile("Договор [^№]*(№.*?) .*участия").search(desc)
     search = search or re.compile("строительстве.*oт[^№]*(№.*?)[;, ]").search(desc)
     search = search or re.compile("Соглашение об уступке[^;,]* oт[^№]*(№.*?)[;, ]").search(desc)
-    result[DDU_DOC_DESC_NUMBER_HEADER] = search and search.groups()[0]
+    result[DDU_DOC_DESC_NUMBER] = search and search.groups()[0]
     checkDate = re.compile("дата регистрации ("+DATE_REGEXP+"),").search(desc)
     checkDogovor = re.compile("Договор.* участия").search(desc)
     if checkDate and checkDogovor:
-        result[DDU_DATE_HEADER] = checkDate.groups()[0] #q: what is .groups() ?
+        result[DDU_DATE] = checkDate.groups()[0] #q: what is .groups() ?
 
     desc = desc.lower()
     #
     # Type_dogovor
     # Определяем тип договора
     if "уступк" in desc:
-        result[DOGOVOR_TYPE_HEADER] = "Уступка"
+        result[DOGOVOR_TYPE] = "Уступка"
     elif "замен" in desc:
-        result[DOGOVOR_TYPE_HEADER] = "Замена стороны"
+        result[DOGOVOR_TYPE] = "Замена стороны"
     elif "растор" in desc:
-        result[DOGOVOR_TYPE_HEADER] = "Расторжение"
+        result[DOGOVOR_TYPE] = "Расторжение"
     else:
-        result[DOGOVOR_TYPE_HEADER] = "ДДУ"
+        result[DOGOVOR_TYPE] = "ДДУ"
     return result
 
 
@@ -332,59 +332,59 @@ def trim_area(value):
 
 def parseExtraFields(data):
     result = dict()
-    data[FLOOR_HEADER] = data[FLOOR_HEADER] or ""
-    data[OBJECT_NUMBER_HEADER] = data[OBJECT_NUMBER_HEADER] or ""
+    data[FLOOR] = data[FLOOR] or ""
+    data[OBJECT_NUMBER] = data[OBJECT_NUMBER] or ""
 
     #
-    area_value = data[AREA_HEADER].replace(",", ".")
+    area_value = data[AREA].replace(",", ".")
     # type_object
-    full_address = data[FULL_ADDRESS_HEADER].lower()
+    full_address = data[FULL_ADDRESS].lower()
     if "ДОУ" in full_address:
         #
-        result[OBJECT_TYPE_HEADER] = "ДОУ"
+        result[OBJECT_TYPE] = "ДОУ"
     elif "апарт" in full_address or \
          "аппарт" in full_address or \
          "апорт" in full_address or \
-         "апарт" in data[TYPE_HEADER] or \
-         "нежил" in data[TYPE_HEADER] and "комн" in data[TYPE_HEADER] or \
-         "нежил" in data[TYPE_HEADER] and "студ" in data[TYPE_HEADER] or \
-         "нежил" in data[TYPE_HEADER] and "комн" in full_address:
+         "апарт" in data[TYPE] or \
+         "нежил" in data[TYPE] and "комн" in data[TYPE] or \
+         "нежил" in data[TYPE] and "студ" in data[TYPE] or \
+         "нежил" in data[TYPE] and "комн" in full_address:
         #
-        result[OBJECT_TYPE_HEADER] = "апартамент"
-    elif "квартир" in data[TYPE_HEADER]:
+        result[OBJECT_TYPE] = "апартамент"
+    elif "квартир" in data[TYPE]:
         #
-        result[OBJECT_TYPE_HEADER] = "квартира"
+        result[OBJECT_TYPE] = "квартира"
     elif "машин" in full_address or \
-         "машин" in data[TYPE_HEADER] or \
-         "стоян" in data[TYPE_HEADER] or \
-         "подвал" in data[FLOOR_HEADER] or \
-         "уров" in data[FLOOR_HEADER]:
+         "машин" in data[TYPE] or \
+         "стоян" in data[TYPE] or \
+         "подвал" in data[FLOOR] or \
+         "уров" in data[FLOOR]:
         #
-        result[OBJECT_TYPE_HEADER] = "машиноместо"
-    elif "нежил" in data[TYPE_HEADER] and BOOL(lambda: float(data[FLOOR_HEADER]) >= 4) or \
-         "нежил" in data[TYPE_HEADER] and BOOL(lambda: float(data[FLOOR_HEADER]) >= 2) and BOOL(lambda: float(area_value) <
+        result[OBJECT_TYPE] = "машиноместо"
+    elif "нежил" in data[TYPE] and BOOL(lambda: float(data[FLOOR]) >= 4) or \
+         "нежил" in data[TYPE] and BOOL(lambda: float(data[FLOOR]) >= 2) and BOOL(lambda: float(area_value) <
                     70):
         #
-        result[OBJECT_TYPE_HEADER] = "апартамент"
+        result[OBJECT_TYPE] = "апартамент"
 
-    elif "кладов" in data[TYPE_HEADER] or \
+    elif "кладов" in data[TYPE] or \
          BOOL(lambda: float(area_value) < 11):
         #
-        result[OBJECT_TYPE_HEADER] = "кладовая"
+        result[OBJECT_TYPE] = "кладовая"
     elif "встроен" in full_address or \
          "офис" in full_address or \
-         "встроен" in data[TYPE_HEADER] or \
-         "нежил" in data[TYPE_HEADER] and data[FLOOR_HEADER] == "1" or \
-         "н" in data[OBJECT_NUMBER_HEADER] and BOOL(lambda: float(data[FLOOR_HEADER]) <= 3):
+         "встроен" in data[TYPE] or \
+         "нежил" in data[TYPE] and data[FLOOR] == "1" or \
+         "н" in data[OBJECT_NUMBER] and BOOL(lambda: float(data[FLOOR]) <= 3):
         #
-        result[OBJECT_TYPE_HEADER] = "нежилое"
-    elif not data[TYPE_HEADER] and not full_address or \
-         not data[TYPE_HEADER] and not area_value:
+        result[OBJECT_TYPE] = "нежилое"
+    elif not data[TYPE] and not full_address or \
+         not data[TYPE] and not area_value:
         #
-        result[OBJECT_TYPE_HEADER] = "нд"
+        result[OBJECT_TYPE] = "нд"
     else:
-        result[OBJECT_TYPE_HEADER] = CHECK_THIS_FIELD
-        result[CHECK_THIS_FIELD] = "тип объекта"
+        result[OBJECT_TYPE] = CHECK_THIS
+        result[CHECK_THIS] = "тип объекта"
     return result
     
 
@@ -409,25 +409,25 @@ def parseAddress(data):
     result = dict()
     
     tmp = re.compile("Объект долевого строительства[: ]*(.*?)[,;]").search(data)
-    result[TYPE_HEADER] = tmp and tmp.groups()[0].lower() or ""
+    result[TYPE] = tmp and tmp.groups()[0].lower() or ""
     
     tmp = re.compile("номер этажа[: ]*(\d*?),").search(data)
     tmp = tmp or re.compile("номер.* этажа:[: ]+(.*?),[^\d]").search(data)
-    result[FLOOR_HEADER] = tmp and tmp.groups()[0] or ""
+    result[FLOOR] = tmp and tmp.groups()[0] or ""
     
     tmp = re.compile("строительный номер[: ]+(.+?),").search(data)
     tmp = tmp or re.compile("номер объекта[: ]*(.+?),").search(data)
-    result[OBJECT_NUMBER_HEADER] = tmp and wrap_data_like_value(tmp.groups()[0]) or ""
+    result[OBJECT_NUMBER] = tmp and wrap_data_like_value(tmp.groups()[0]) or ""
     
     tmp = re.compile("проектная.*планируемая.*площадь[: -]+(.*?) кв.м").search(data)
     tmp = tmp or re.compile("общая площадь[: -]+(.*?) кв.м").search(data)
     # res[AREA] = "=\"" + tmp and tmp.groups()[0] + "\""
-    result[AREA_HEADER] = tmp and trim_area(tmp.groups()[0]) or ""
+    result[AREA] = tmp and trim_area(tmp.groups()[0]) or ""
     
     tmp = re.compile("местоположение[: ]+(.*?)[.;]*$").search(data)
     tmp = tmp or re.compile("строительный адрес[: ]+(.*?)[.;]*$").search(data)
     # tmp = tmp or re.compile("уч. (.*?),кад.").search(data)
-    result[ADRESS_HEADER] = tmp and tmp.groups()[0] or ""
+    result[ADRESS] = tmp and tmp.groups()[0] or ""
     
     # Corpus
     tmp = re.compile("[^\d][;.,][ ]{0,3}([\d.]+)[- ]*корпус[;,.]?[\s]+[^\d]").search(data)  # Anton
@@ -435,65 +435,65 @@ def parseAddress(data):
     tmp = tmp or re.compile("[\s\(]?блоки?{eq}([\d\.]+){sep}".format_map(FMTS)).search(data)  # Anton
     tmp = tmp or re.compile(", (\d+?)[-й]* блок{sep}".format_map(FMTS)).search(data)  # Oleg
     tmp = tmp and tmp.groups()[0] or ""
-    result[CORPUS_HEADER] = wrap_data_like_value(tmp)
+    result[CORPUS] = wrap_data_like_value(tmp)
 
     # Section
     tmp = re.compile("секция{eq}({section})[\(\s]*секция[: -]*({section}){sep}".format_map(FMTS)).search(data)
     if tmp:
-        result[SECTION_HEADER] = tmp and wrap_data_like_value("{groups[0]} ({groups[1]})".format(groups=tmp.groups()))
+        result[SECTION] = tmp and wrap_data_like_value("{groups[0]} ({groups[1]})".format(groups=tmp.groups()))
     if not tmp:
         tmp = re.compile("секция{eq}([а-яА-Я\d]+){sep}([а-яА-Я\d]) *,".format_map(FMTS)).search(data)
-        result[SECTION_HEADER] = tmp and wrap_data_like_value("{groups[0]}, {groups[1]}".format(groups=tmp.groups()))
+        result[SECTION] = tmp and wrap_data_like_value("{groups[0]}, {groups[1]}".format(groups=tmp.groups()))
     if not tmp:
         tmp = re.compile("секция{eq}({section}?){eq}\(([а-яА-Я\d]?)\){sep}".format_map(FMTS)).search(data)
-        result[SECTION_HEADER] = tmp and wrap_data_like_value("{groups[0]}{groups[1]}".format(groups=tmp.groups()))
+        result[SECTION] = tmp and wrap_data_like_value("{groups[0]}{groups[1]}".format(groups=tmp.groups()))
     if not tmp:
         tmp = re.compile("секция{eq}([^;, ]+?){sep}".format_map(FMTS)).search(data)
         tmp = tmp or re.compile("секция{eq}([^;, ]+?){sep}".format_map(FMTS)).search(data)
         tmp = tmp or re.compile("[, ]+({section}?) секция{sep}".format_map(FMTS)).search(data)
         tmp = tmp and tmp.groups()[0] or ""
-        result[SECTION_HEADER] = tmp and wrap_data_like_value(tmp)
+        result[SECTION] = tmp and wrap_data_like_value(tmp)
 
     tmp = re.compile("подъезд{eq}([^,;() ]+?){sep}".format_map(FMTS)).search(data)
     tmp = tmp or re.compile("{sep}(\d+){eq}подъезд{sep}".format_map(FMTS)).search(data)
     tmp = tmp and tmp.groups()[0] or ""
-    result[ENTRANCE_HEADER] = tmp and re.sub("[.]$", "", tmp)
+    result[ENTRANCE] = tmp and re.sub("[.]$", "", tmp)
     # rooms
     rooms_re = re.compile("количество комнат{eq}(.+?){sep}".format_map(FMTS)).search(data)
     rooms_re = rooms_re or re.compile("тип{eq}(.+?){sep}".format_map(FMTS)).search(data)
     rooms_re = rooms_re or re.compile(", *(\d+?) *ком\.").search(data)
-    if "студ" in data or "студ" in result[TYPE_HEADER]:
-        result[ROOMS_HEADER] = "студия"
-    elif "1" in result[TYPE_HEADER] or "одно" in result[TYPE_HEADER]:
-        result[ROOMS_HEADER] = "1"
-    elif "2" in result[TYPE_HEADER] or "дву" in result[TYPE_HEADER]:
-        result[ROOMS_HEADER] = "2"
-    elif "3" in result[TYPE_HEADER] or "трех" in result[TYPE_HEADER]:
-        result[ROOMS_HEADER] = "3"
-    elif "4" in result[TYPE_HEADER] or "четыре" in result[TYPE_HEADER]:
-        result[ROOMS_HEADER] = "4"
-    elif "5" in result[TYPE_HEADER] or "пяти" in result[TYPE_HEADER]:
-        result[ROOMS_HEADER] = "5"
-    elif "6" in result[TYPE_HEADER] or "шести" in result[TYPE_HEADER]:
-        result[ROOMS_HEADER] = "6"
-    elif "7" in result[TYPE_HEADER] or "семи" in result[TYPE_HEADER]:
-        result[ROOMS_HEADER] = "7"
+    if "студ" in data or "студ" in result[TYPE]:
+        result[ROOMS] = "студия"
+    elif "1" in result[TYPE] or "одно" in result[TYPE]:
+        result[ROOMS] = "1"
+    elif "2" in result[TYPE] or "дву" in result[TYPE]:
+        result[ROOMS] = "2"
+    elif "3" in result[TYPE] or "трех" in result[TYPE]:
+        result[ROOMS] = "3"
+    elif "4" in result[TYPE] or "четыре" in result[TYPE]:
+        result[ROOMS] = "4"
+    elif "5" in result[TYPE] or "пяти" in result[TYPE]:
+        result[ROOMS] = "5"
+    elif "6" in result[TYPE] or "шести" in result[TYPE]:
+        result[ROOMS] = "6"
+    elif "7" in result[TYPE] or "семи" in result[TYPE]:
+        result[ROOMS] = "7"
     # восьмикомнатная квартира бывает?
     # TODO: уточнить у Полины нужно ли увеличивать количество комнат
     elif rooms_re:
         tmp = rooms_re.groups()[0]
         if tmp == "ст":
-            result[ROOMS_HEADER] = "студия"
+            result[ROOMS] = "студия"
         elif tmp[0].isdigit():
-            result[ROOMS_HEADER] = tmp[0]
+            result[ROOMS] = tmp[0]
         else:
-            result[ROOMS_HEADER] = CHECK_THIS_FIELD
-            result[CHECK_THIS_FIELD] = "комнаты"
+            result[ROOMS] = CHECK_THIS
+            result[CHECK_THIS] = "комнаты"
     else:
-        result[ROOMS_HEADER] = CHECK_THIS_FIELD
-        result[CHECK_THIS_FIELD] = "комнаты"
+        result[ROOMS] = CHECK_THIS
+        result[CHECK_THIS] = "комнаты"
     # save audit info
-    result[FULL_ADDRESS_HEADER] = data
+    result[FULL_ADDRESS] = data
     return result
 
 
@@ -555,20 +555,20 @@ def process(input_file, spamwriter):
 
     for elem in elems:
         res = dict()
-        res[NUM_UCHASTOK_HEADER] = cadastralNumber
+        res[NUM_UCHASTOK] = cadastralNumber
 
         # res['ID_DDU'] = elem.findtext('ID_DDU')
         # if not res['ID_DDU']:
         #     continue
         
-        res[ID_DDU_HEADER] = elem.findtext('ID_DDU')
-        if not res[ID_DDU_HEADER]:
+        res[ID_DDU] = elem.findtext('ID_DDU')
+        if not res[ID_DDU]:
             continue
 
-        res[DDU_DESC_HEADER] = (elem.findtext('DduDocDesc') or "").replace("\n", " ")
-        res[DDU_DATE_HEADER] = elem.findtext('DduDate')
-        res[DDU_REG_NUMBER_HEADER] = elem.findtext('DduRegNo')
-        res.update(extractDduDocDesc(res[DDU_DESC_HEADER]))
+        res[DDU_DESC] = (elem.findtext('DduDocDesc') or "").replace("\n", " ")
+        res[DDU_DATE] = elem.findtext('DduDate')
+        res[DDU_REG_NUMBER] = elem.findtext('DduRegNo')
+        res.update(extractDduDocDesc(res[DDU_DESC]))
 
         data = None
         if len(elem.find('ShareHolding')) == 2:
@@ -589,33 +589,33 @@ def process(input_file, spamwriter):
         
         # owners
         owners = getOwners(elem)
-        res[OWNERS_HEADER] = ", ".join(owners)
+        res[OWNERS] = ", ".join(owners)
         for owner in owners:
-            res[WHOLESALE_HEADER] = ownersCount[owner]
+            res[WHOLESALE] = ownersCount[owner]
         
         # loan
         curr = elem.find("Encumbrance")
         if curr:
             # res['loanId'] = curr.findtext("ID_Record")
-            res[LOAN_NUMBER_HEADER] = curr.findtext("RegNumber")
+            res[LOAN_NUMBER] = curr.findtext("RegNumber")
             # res['loanType'] = curr.findtext('Type')
-            res[LOAN_NAME_HEADER] = curr.findtext('Name')
-            res[LOAN_DATE_HEADER] = curr.findtext('RegDate')
+            res[LOAN_NAME] = curr.findtext('Name')
+            res[LOAN_DATE] = curr.findtext('RegDate')
             tmp = curr.find('Duration')
             if tmp:
-                res[LOAN_DURATION_HEADER] = tmp.findtext('Term')
+                res[LOAN_DURATION] = tmp.findtext('Term')
             curr = elem.find("Encumbrance").find("Owner")
             if curr:
                 if curr.find('Organization'):
-                    res[LOAN_OWNER_NAME_HEADER]= curr.find('Organization').findtext('Name')
+                    res[LOAN_OWNER_NAME]= curr.find('Organization').findtext('Name')
         
         # Type_owner
-        if "'" in res[OWNERS_HEADER] or '"' in res[OWNERS_HEADER]:
-            res[OWNER_TYPE_HEADER] = "ЮЛ"
+        if "'" in res[OWNERS] or '"' in res[OWNERS]:
+            res[OWNER_TYPE] = "ЮЛ"
         else:
-            res[OWNER_TYPE_HEADER] = "ФЛ"
+            res[OWNER_TYPE] = "ФЛ"
         
-        res[SOURCE_FILE_HEADER] = filename
+        res[SOURCE_FILE] = filename
         
         # set extra fields
         res.update(parseExtraFields(res))

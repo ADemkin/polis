@@ -14,7 +14,7 @@ from io import StringIO
 
 ROOT = '/var/tmp/polis/static/'
 STATIC = 'var/tmp/static/'
-LCOAL = 'static/'
+LOCAL = 'static/'
 
 # VARIABLE / table name # old name
 ID_DDU = 'ID'  # 'ID_DDU',
@@ -180,6 +180,7 @@ CORPUS_TYPOS = [
     ' орпус',
     'корапус ',
     'КОРПУС ',
+    'кропус',
     'юлок ',
     'Блок No',
     'блок No',
@@ -196,10 +197,10 @@ CORPUS_TYPOS = [
     'Блок ',
     'в корпусе ',
     'ьлок',
-    # todo: уточинить по поводу домов
-    'дом №', # this
-    'доме №', # this
-    'дома №', # and this
+    'юлок',
+    'дом №',
+    'доме №',
+    'дома №',
     ]
 
 DOGOVOR_UCHASTIA_TYPO = [
@@ -330,7 +331,7 @@ def trim_area(value):
     else:
         return value
 
-
+# define type here
 def parseExtraFields(data):
     result = dict()
     data[FLOOR] = data[FLOOR] or ""
@@ -412,9 +413,23 @@ def parseAddress(data):
     tmp = re.compile("Объект долевого строительства[: ]*(.*?)[,;]").search(data)
     result[TYPE] = tmp and tmp.groups()[0].lower() or ""
     
-    tmp = re.compile("номер этажа[: ]*(\d*?),").search(data)
-    tmp = tmp or re.compile("номер.* этажа:[: ]+(.*?),[^\d]").search(data)
-    result[FLOOR] = tmp and tmp.groups()[0] or ""
+    # Floor
+    tmp = re.compile("номер этажа[: ]*(\d*?),").search(data)  # Oleg
+    tmp = tmp or re.compile("номер.* этажа:[: ]+(.*?),[^\d]").search(data)  # Oleg
+    result[FLOOR] = tmp and tmp.groups()[0] or ""  # Oleg
+    
+    # Anton mess
+    # floor_re = "(\-\d\.?\,?\d+|\-?\d[\-\sоиый])"
+    # tmp = re.compile("(цоколь\w*|подвал\w*|подземный)").search(data)  # Anton
+    # debug(tmp)
+    # tmp = tmp or re.compile("(этаж:?)?\s*{}[.;, ]?\1".format(floor_re)).search(data)  # Anton
+    # debug(tmp)
+    # tmp = tmp or re.compile("номер этажа[: ]*(\d*?),").search(data)  # Oleg
+    # debug(tmp)
+    # tmp = tmp or re.compile("номер.* этажа:[: ]+(.*?),[^\d]").search(data)  # Oleg
+    # debug(tmp)
+    # result[FLOOR] = tmp and tmp.groups()[0] or ""  # Oleg
+    
     
     tmp = re.compile("строительный номер[: ]+(.+?),").search(data)
     tmp = tmp or re.compile("номер объекта[: ]*(.+?),").search(data)
@@ -665,13 +680,13 @@ def do_upload():
 @route('/static/<filename:path>')
 def send_static(filename):
     # use STATIC on deploy. Use LOCAL on development
-    return static_file(filename, root=STATIC)
+    return static_file(filename, root=LOCAL)
 
 
 @route('/')
 def index():
     # use ROOT on deploy. Use LOCAL on development
-    return static_file("index.html", root=ROOT)
+    return static_file("index.html", root=LOCAL)
 
 
 if __name__ == '__main__':

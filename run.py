@@ -421,10 +421,13 @@ def parseAddress(data):
     tmp = tmp or re.compile("номер объекта[: ]*(.+?),").search(data)
     result[OBJECT_NUMBER] = tmp and wrap_data_like_value(tmp.groups()[0]) or ""
     
-    tmp = re.compile("проектная.*планируемая.*площадь[: -]+(.*?) кв.м").search(data)
-    tmp = tmp or re.compile("общая площадь[: -]+(.*?) кв.м").search(data)
+    # Area
+    re_area = "(\d{1,4}[,.]?\d{0,2})"
+    tmp = re.compile("проектная.*планируемая.*площадь[: -]+{area}\s*кв\.м".format(area=re_area)).search(data)
+    tmp = tmp or re.compile("общая площадь[: -]+{area}\s*кв\.м".format(area=re_area)).search(data)
     # res[AREA] = "=\"" + tmp and tmp.groups()[0] + "\""
-    result[AREA] = tmp and trim_area(tmp.groups()[0]) or ""
+    #result[AREA] = tmp and trim_area(tmp.groups()[0]) or ""  # Oleg
+    result[AREA] = tmp and tmp.groups()[0] or ""  # Anton
     
     tmp = re.compile("местоположение[: ]+(.*?)[.;]*$").search(data)
     tmp = tmp or re.compile("строительный адрес[: ]+(.*?)[.;]*$").search(data)

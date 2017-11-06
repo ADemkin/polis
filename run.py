@@ -419,12 +419,12 @@ def parseAddress(data):
     # Anton mess
     re_floor = "(\-\d[,.]?\d+|\-?\d+)[-оимый]*"
     tmp = re.compile("(цоколь\w*|подвал\w*|подзем\w*)").search(data)  # Anton
-    debug("1:{}".format(tmp))
+    #debug("1:{}".format(tmp))
     tmp = tmp or re.compile("{floor}\s*этаж[е,.;]*".format(floor=re_floor)).search(data)  # Anton
-    debug("2:{}".format(tmp))
+    #debug("2:{}".format(tmp))
     # tmp = tmp or re.compile("номер этажа[: ]*(\d*?),").search(data)  # Oleg
     tmp = tmp or re.compile("номер этажа[: ]*{floor}".format(floor=re_floor)).search(data)  # Anton
-    debug("3:{}".format(tmp))
+    #debug("3:{}".format(tmp))
     #tmp = tmp or re.compile("номер.* этажа:[: ]+(.*?),[^\d]").search(data)  # Oleg
     #debug("4:{}".format(tmp))
     result[FLOOR] = tmp and tmp.groups()[0] or ""  # Oleg

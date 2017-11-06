@@ -425,7 +425,6 @@ def parseAddress(data):
     re_area = "(\d{1,4}[,.]?\d{0,2})"
     tmp = re.compile("проектная.*планируемая.*площадь[: -]+{area}\s*кв\.м".format(area=re_area)).search(data)
     tmp = tmp or re.compile("общая площадь[: -]+{area}\s*кв\.м".format(area=re_area)).search(data)
-    # res[AREA] = "=\"" + tmp and tmp.groups()[0] + "\""
     #result[AREA] = tmp and trim_area(tmp.groups()[0]) or ""  # Oleg
     result[AREA] = tmp and tmp.groups()[0] or ""  # Anton
     

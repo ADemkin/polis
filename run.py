@@ -422,10 +422,11 @@ def parseAddress(data):
     result[OBJECT_NUMBER] = tmp and wrap_data_like_value(tmp.groups()[0]) or ""
     
     # Area
-    re_area = "(\d{1,4}[,.]?\d{0,2})"
+    re_area = "(\d{1,4}[,.]?\d{0,3}[,.]?\d{0,2})"
     tmp = re.compile("проектная.*планируемая.*площадь[: -]+{area}\s*кв\.м".format(area=re_area)).search(data)
     tmp = tmp or re.compile("общая площадь[: -]+{area}\s*кв\.м".format(area=re_area)).search(data)
     #result[AREA] = tmp and trim_area(tmp.groups()[0]) or ""  # Oleg
+    debug(tmp)
     result[AREA] = tmp and tmp.groups()[0] or ""  # Anton
     
     tmp = re.compile("местоположение[: ]+(.*?)[.;]*$").search(data)
@@ -462,6 +463,7 @@ def parseAddress(data):
     tmp = tmp or re.compile("{sep}(\d+){eq}подъезд{sep}".format_map(FMTS)).search(data)
     tmp = tmp and tmp.groups()[0] or ""
     result[ENTRANCE] = tmp and re.sub("[.]$", "", tmp)
+    
     # rooms
     rooms_re = re.compile("количество комнат{eq}(.+?){sep}".format_map(FMTS)).search(data)
     rooms_re = rooms_re or re.compile("тип{eq}(.+?){sep}".format_map(FMTS)).search(data)
@@ -496,6 +498,7 @@ def parseAddress(data):
     else:
         result[ROOMS] = CHECK_THIS
         result[CHECK_THIS] = "комнаты"
+    
     # save audit info
     result[FULL_ADDRESS] = data
     return result

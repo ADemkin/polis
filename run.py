@@ -336,9 +336,7 @@ def parseExtraFields(data):
     data[FLOOR] = data[FLOOR] or ""
     data[OBJECT_NUMBER] = data[OBJECT_NUMBER] or ""
 
-    #
     area_value = data[AREA].replace(",", ".")
-    # type_object
     full_address = data[FULL_ADDRESS].lower()
     if "ДОУ" in full_address:
         #
@@ -384,7 +382,7 @@ def parseExtraFields(data):
         result[OBJECT_TYPE] = "нд"
     else:
         result[OBJECT_TYPE] = CHECK_THIS
-        result[CHECK_THIS] = "тип объекта"
+        result[CHECK_THIS] = OBJECT_TYPE
     return result
     
 
@@ -412,7 +410,7 @@ def parseAddress(data):
     result[TYPE] = tmp and tmp.groups()[0].lower() or ""
     
     # Floor
-    re_floor = "(\-\d[,.]?\d+|\-?\d+)[-оимый]*"
+    re_floor = "[на урвнеотм.]*(\-\d[,.]?\d+|\-?\d+)[-оимый]*"
     tmp = re.compile("(цоколь\w*|подвал\w*|подзем\w*)").search(data)  # Anton
     tmp = tmp or re.compile("{floor}\s*этаж[е,.;]*".format(floor=re_floor)).search(data)  # Anton
     tmp = tmp or re.compile("номер этажа[: ]*{floor}".format(floor=re_floor)).search(data)  # Anton

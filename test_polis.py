@@ -780,7 +780,8 @@ class TestStringMethods(unittest.TestCase):
         self.assertEqual(res[impo.AREA], '12955,24')
         
         
-    def _test_area_anton_october_2017(self):
+        
+    def test_area_anton_october_2017(self):
         s = "Объект долевого строительства: 1-комнатная квартира, номер этажа: 6, номер объекта: 71, проектная (планируемая) площадь: 31,75 кв.м, проектная площадь балконов и террас, ( нониженным коэффициентом 0,3) кв.м. 1,20 кв.м., наличие балкона/лоджии - балкон; местоположение: Московская область, г.Красноармейск, ул.Новая Жизнь, д.8;"
         res = impo.parseAddress(s)
         self.assertEqual(res[impo.AREA], '31,75')
@@ -802,11 +803,11 @@ class TestStringMethods(unittest.TestCase):
         res = impo.parseAddress(s)
         self.assertEqual(res[impo.AREA], '5533,95')
         self.assertEqual(res[impo.FLOOR], '-5,350')
-        
+        # multiple areas
         s = "Объект долевого строительства: Нежилое помещение (автостоянка), номер этажа: 5, номер объекта: 5-19(836), проектная (планируемая) площадь: 2.017,00 кв.м, местоположение: Санкт-Петербург, Василеостровский район, Невская губа, уч.28, (западнее Васильевского острова, квартал 25),3 этап, строительные оси м/м: 21-22; Г-В, примерная площадь  12 кв. м., 1/69 доли в праве собственности.;"
         res = impo.parseAddress(s)
-        # self.assertEqual(res[impo.AREA], '12')
-        self.assertEqual(res[impo.AREA], '2.017,00')
+        #self.assertEqual(res[impo.AREA], '2.017,00')
+        self.assertEqual(res[impo.AREA], '12')
         
         
 if __name__ == '__main__':

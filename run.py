@@ -323,7 +323,6 @@ def extractDduDocDesc(desc):
 
 
 #TODO: check other fields before trimming area- it leads to bugs!
-#362 line
 def trim_area(value):
     area = value.replace(",", ".")
     if BOOL(lambda: float(area) > 1000):
@@ -364,8 +363,7 @@ def parseExtraFields(data):
         #
         result[OBJECT_TYPE] = "машиноместо"
     elif "нежил" in data[TYPE] and BOOL(lambda: float(data[FLOOR]) >= 4) or \
-         "нежил" in data[TYPE] and BOOL(lambda: float(data[FLOOR]) >= 2) and BOOL(lambda: float(area_value) <
-                    70):
+         "нежил" in data[TYPE] and BOOL(lambda: float(data[FLOOR]) >= 2) and BOOL(lambda: float(area_value) < 70):
         #
         result[OBJECT_TYPE] = "апартамент"
 
@@ -414,21 +412,21 @@ def parseAddress(data):
     result[TYPE] = tmp and tmp.groups()[0].lower() or ""
     
     # Floor
-    tmp = re.compile("номер этажа[: ]*(\d*?),").search(data)  # Oleg
-    tmp = tmp or re.compile("номер.* этажа:[: ]+(.*?),[^\d]").search(data)  # Oleg
-    result[FLOOR] = tmp and tmp.groups()[0] or ""  # Oleg
+    # tmp = re.compile("номер этажа[: ]*(\d*?),").search(data)  # Oleg
+    # tmp = tmp or re.compile("номер.* этажа:[: ]+(.*?),[^\d]").search(data)  # Oleg
+    # result[FLOOR] = tmp and tmp.groups()[0] or ""  # Oleg
     
     # Anton mess
     # floor_re = "(\-\d\.?\,?\d+|\-?\d[\-\sоиый])"
-    # tmp = re.compile("(цоколь\w*|подвал\w*|подземный)").search(data)  # Anton
-    # debug(tmp)
-    # tmp = tmp or re.compile("(этаж:?)?\s*{}[.;, ]?\1".format(floor_re)).search(data)  # Anton
-    # debug(tmp)
-    # tmp = tmp or re.compile("номер этажа[: ]*(\d*?),").search(data)  # Oleg
-    # debug(tmp)
-    # tmp = tmp or re.compile("номер.* этажа:[: ]+(.*?),[^\d]").search(data)  # Oleg
-    # debug(tmp)
-    # result[FLOOR] = tmp and tmp.groups()[0] or ""  # Oleg
+    tmp = re.compile("(цоколь\w*|подвал\w*|подзем\w*)").search(data)  # Anton
+    debug("1:{}".format(tmp))
+    # tmp = tmp or re.compile("(этаж:?)?\s*(\-\d\.?\,?\d+|\-?\d[\-\sоиый])[.;, ]?\1").search(data)  # Anton
+    # debug("2:{}".format(tmp))
+    tmp = tmp or re.compile("номер этажа[: ]*(\d*?),").search(data)  # Oleg
+    debug("3:{}".format(tmp))
+    tmp = tmp or re.compile("номер.* этажа:[: ]+(.*?),[^\d]").search(data)  # Oleg
+    debug("4:{}".format(tmp))
+    result[FLOOR] = tmp and tmp.groups()[0] or ""  # Oleg
     
     
     tmp = re.compile("строительный номер[: ]+(.+?),").search(data)
@@ -572,11 +570,6 @@ def process(input_file, spamwriter):
     for elem in elems:
         res = dict()
         res[NUM_UCHASTOK] = cadastralNumber
-
-        # res['ID_DDU'] = elem.findtext('ID_DDU')
-        # if not res['ID_DDU']:
-        #     continue
-        
         res[ID_DDU] = elem.findtext('ID_DDU')
         if not res[ID_DDU]:
             continue
@@ -595,12 +588,6 @@ def process(input_file, spamwriter):
         else:
             data = " ".join(elem.find('ShareHolding').findtext('ShareObjects'))
 
-        # debug("------")
-        # ee = elem.find('Encumbrance').find("Owner")
-        # tmp = xml.etree.ElementTree.tostring(ee, encoding="utf8").decode("utf8")
-        # debug(tmp)
-        # debug("----------")
-
         res.update(parseAddress(data))
         
         # owners
@@ -612,9 +599,7 @@ def process(input_file, spamwriter):
         # loan
         curr = elem.find("Encumbrance")
         if curr:
-            # res['loanId'] = curr.findtext("ID_Record")
             res[LOAN_NUMBER] = curr.findtext("RegNumber")
-            # res['loanType'] = curr.findtext('Type')
             res[LOAN_NAME] = curr.findtext('Name')
             res[LOAN_DATE] = curr.findtext('RegDate')
             tmp = curr.find('Duration')

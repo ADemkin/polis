@@ -420,14 +420,20 @@ def parseAddress(data):
     tmp = re.compile("строительный номер[: ]+(.+?),").search(data)
     tmp = tmp or re.compile("номер объекта[: ]*(.+?),").search(data)
     result[OBJECT_NUMBER] = tmp and wrap_data_like_value(tmp.groups()[0]) or ""
-    
+
     # Area
-    re_area = "(\d{1,4}[,.]?\d{0,3}[,.]?\d{0,2})"
-    tmp = re.compile("проектная.*планируемая.*площадь[: -]+{area}\s*кв\.м".format(area=re_area)).search(data)
-    tmp = tmp or re.compile("общая площадь[: -]+{area}\s*кв\.м".format(area=re_area)).search(data)
-    #result[AREA] = tmp and trim_area(tmp.groups()[0]) or ""  # Oleg
-    debug(tmp)
-    result[AREA] = tmp and tmp.groups()[0] or ""  # Anton
+    
+    # Area v2.0
+    # re_area = "(\d{1,4}[,.]?\d{0,3}[,.]?\d{0,2})"
+    # tmp = re.compile("проектная.*планируемая.*площадь[: -]+{area}\s*кв\.м".format(area=re_area)).search(data)
+    # tmp = tmp or re.compile("общая площадь[: -]+{area}\s*кв\.м".format(area=re_area)).search(data)
+    # result[AREA] = tmp and tmp.groups()[0] or ""  # Anton
+    
+    # area v2.1 by Anton
+    re_area_type = "(?:проектная|\(?планируемая\)?|общая|примерная)"
+    re_area = "(\d{1,4}[,.]?\d{0,3}[,.]?\d{0,2})\s*кв[\. ]+м"
+    tmp = re.compile("{type}\s*площадь[: -]+{area}".format(area=re_area, type=re_area_type)).findall(data) or "no info"
+    result[AREA] = min(tmp) or ""
     
     tmp = re.compile("местоположение[: ]+(.*?)[.;]*$").search(data)
     tmp = tmp or re.compile("строительный адрес[: ]+(.*?)[.;]*$").search(data)

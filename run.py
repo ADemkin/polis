@@ -322,13 +322,13 @@ def extractDduDocDesc(desc):
     return result
 
 
-#TODO: check other fields before trimming area- it leads to bugs!
-def trim_area(value):
-    area = value.replace(",", ".")
-    if BOOL(lambda: float(area) > 1000):
-        return str(float(area) / 100.0).replace(".", ",")
-    else:
-        return value
+# #TODO: check other fields before trimming area- it leads to bugs!
+# def trim_area(value):
+#     area = value.replace(",", ".")
+#     if BOOL(lambda: float(area) > 1000):
+#         return str(float(area) / 100.0).replace(".", ",")
+#     else:
+#         return value
 
 # define type here
 def parseExtraFields(data):
@@ -410,7 +410,7 @@ def parseAddress(data):
     result[TYPE] = tmp and tmp.groups()[0].lower() or ""
     
     # Floor
-    re_floor = "[на урвьеотм.]*(\-\d[,.]?\d+|\-?\d+)[-оимый]*"
+    re_floor = "[на урвьеотмк.]*(\-\d[,.]?\d+|\-?\d+)[-оимый]*"
     tmp = re.compile("(цоколь\w*|подвал\w*|подзем\w*)").search(data)  # Anton
     tmp = tmp or re.compile("{floor}\s*этаж[е,.;]*".format(floor=re_floor)).search(data)  # Anton
     tmp = tmp or re.compile("номер этажа[: ]*{floor}".format(floor=re_floor)).search(data)  # Anton
@@ -435,7 +435,7 @@ def parseAddress(data):
     tmp = re.compile("{type}\s*площадь[: -]+{area}".format(area=re_area, type=re_area_type)).findall(data) or "no info"
     result[AREA] = min(tmp) or ""
     
-    # Adres
+    # Adress
     tmp = re.compile("местоположение[: ]+(.*?)[.;]*$").search(data)
     tmp = tmp or re.compile("строительный адрес[: ]+(.*?)[.;]*$").search(data)
     # tmp = tmp or re.compile("уч. (.*?),кад.").search(data)
@@ -475,6 +475,7 @@ def parseAddress(data):
     rooms_re = re.compile("количество комнат{eq}(.+?){sep}".format_map(FMTS)).search(data)
     rooms_re = rooms_re or re.compile("тип{eq}(.+?){sep}".format_map(FMTS)).search(data)
     rooms_re = rooms_re or re.compile(", *(\d+?) *ком\.").search(data)
+    # debug(rooms_re)
     if "студ" in data or "студ" in result[TYPE]:
         result[ROOMS] = "студия"
     elif "1" in result[TYPE] or "одно" in result[TYPE]:
@@ -491,8 +492,6 @@ def parseAddress(data):
         result[ROOMS] = "6"
     elif "7" in result[TYPE] or "семи" in result[TYPE]:
         result[ROOMS] = "7"
-    # восьмикомнатная квартира бывает?
-    # TODO: уточнить у Полины нужно ли увеличивать количество комнат
     elif rooms_re:
         tmp = rooms_re.groups()[0]
         if tmp == "ст":
@@ -500,11 +499,18 @@ def parseAddress(data):
         elif tmp[0].isdigit():
             result[ROOMS] = tmp[0]
         else:
-            result[ROOMS] = CHECK_THIS
-            result[CHECK_THIS] = "комнаты"
-    else:
-        result[ROOMS] = CHECK_THIS
-        result[CHECK_THIS] = "комнаты"
+            #result[ROOMS] = CHECK_THIS
+            #result[CHECK_THIS] = "комнаты"
+            pass
+    # else:
+    #     result[ROOMS] = CHECK_THIS
+    #     result[CHECK_THIS] = "комнаты"
+    elif "нежил" in result[TYPE] or \
+         "машин" in result[TYPE] or \
+         "клад" in result[TYPE]:
+        pass
+    elif "квартира" in result[TYPE]:
+        debug("Something wrong with {}".format(result))
     
     # save audit info
     result[FULL_ADDRESS] = data

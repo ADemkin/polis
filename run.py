@@ -222,7 +222,9 @@ ROOMS_NUMBER_TYPO = [
     'кол-во ком.',
     'Количество комнат '
 ]
-
+KVARTIRA_TYPO = [
+    'квартирва',
+]
 
 
 def replaceTyposInAddress(data):
@@ -251,6 +253,8 @@ def replaceTyposInAddress(data):
         data = data.replace(to_replace, " корпус ")
     for to_replace in ROOMS_NUMBER_TYPO:
         data = data.replace(to_replace, " количество комнат ")
+    for to_replace in KVARTIRA_TYPO:
+        data = data.replace(to_replace, " квартира ")
   
     data = data.replace("в осях ", " в осях ")
     data = data.replace("Тип", "тип: ")
@@ -499,9 +503,11 @@ def parseAddress(data):
         elif tmp[0].isdigit():
             result[ROOMS] = tmp[0]
         else:
+            # if no rooms detected and not studio
             #result[ROOMS] = CHECK_THIS
             #result[CHECK_THIS] = "комнаты"
             pass
+            
     # else:
     #     result[ROOMS] = CHECK_THIS
     #     result[CHECK_THIS] = "комнаты"
@@ -510,7 +516,9 @@ def parseAddress(data):
          "клад" in result[TYPE]:
         pass
     elif "квартира" in result[TYPE]:
-        debug("Something wrong with {}".format(result))
+        # If kvartira wwithout rooms
+        # debug("Something wrong with {}".format(result))
+        pass
     
     # save audit info
     result[FULL_ADDRESS] = data

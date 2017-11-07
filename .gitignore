@@ -4,6 +4,7 @@
 /xml
 /xml 1
 /errors
+/tools
 
 # virtualenv
 .venv

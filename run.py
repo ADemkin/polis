@@ -222,8 +222,21 @@ ROOMS_NUMBER_TYPO = [
     'кол-во ком.',
     'Количество комнат '
 ]
+
 KVARTIRA_TYPO = [
     'квартирва',
+    'кв-ра ',
+    #'кв. ',  # cant use this one because of same notation of area!
+]
+
+# not used yet
+NEJILOE_TYPO = [
+    'нежиллое',
+]
+
+APPARTAMENT_TYPO = [
+    'аппартамент',
+    'апортамент',
 ]
 
 
@@ -255,6 +268,8 @@ def replaceTyposInAddress(data):
         data = data.replace(to_replace, " количество комнат ")
     for to_replace in KVARTIRA_TYPO:
         data = data.replace(to_replace, " квартира ")
+    for to_replace in APPARTAMENT_TYPO:
+        data = data.replace(to_replace, "апартамент")
   
     data = data.replace("в осях ", " в осях ")
     data = data.replace("Тип", "тип: ")

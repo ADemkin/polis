@@ -231,7 +231,8 @@ KVARTIRA_TYPO = [
 
 # not used yet
 NEJILOE_TYPO = [
-    'нежиллое',
+    'нежиллое ',
+    'Нежилое ',
 ]
 
 APPARTAMENT_TYPO = [
@@ -425,7 +426,21 @@ def parseAddress(data):
     data = replaceTyposInAddress(data)
     result = dict()
     
+    # Object Oleg
+    # tmp = re.compile("Объект долевого строительства[: ]*(.*?)[,;]").search(data)
+    # result[TYPE] = tmp and tmp.groups()[0].lower() or ""
+
+    # Object Anton
     tmp = re.compile("Объект долевого строительства[: ]*(.*?)[,;]").search(data)
+    tmp = tmp and tmp.groups()[0].lower() or ""
+    re_obj_pre = "(нежил.{0,30}|жил.{0,30}|.*комнат.{0,30}|офис.{0,30}|встр.{0,30}|\d.?к.{0,30})?"
+    re_obj_body = "(квартира|помещение|апартамент|.*комнатная|.{0.30}место|студия|комнаты?)"
+    re_obj_suf = "(.{0,30}кладовая|.{0,30}стоянка|.{0,30}место|.{0,30}студия|.{0,30}нат[аы]|.{0,30}ное|.{0,30}ние|" \
+                    ".{0,30}квартира|.{0,30}апартаменты?)?\)?"
+    
+    tmp = re.compile("({pre}{body}{suff})".format(pre=re_obj_pre,
+                                                  body=re_obj_body,
+                                                  suff=re_obj_suf)).search(tmp)
     result[TYPE] = tmp and tmp.groups()[0].lower() or ""
     
     # Floor
@@ -519,9 +534,9 @@ def parseAddress(data):
             result[ROOMS] = tmp[0]
         else:
             # if no rooms detected and not studio
-            #result[ROOMS] = CHECK_THIS
+            result[ROOMS] = ""
             #result[CHECK_THIS] = "комнаты"
-            pass
+            
             
     # else:
     #     result[ROOMS] = CHECK_THIS
@@ -529,11 +544,11 @@ def parseAddress(data):
     elif "нежил" in result[TYPE] or \
          "машин" in result[TYPE] or \
          "клад" in result[TYPE]:
-        pass
+        result[ROOMS] = ""
     elif "квартира" in result[TYPE]:
         # If kvartira wwithout rooms
         # debug("Something wrong with {}".format(result))
-        pass
+        result[ROOMS] = ""
     
     # save audit info
     result[FULL_ADDRESS] = data

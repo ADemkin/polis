@@ -17,7 +17,8 @@ STATIC = 'var/tmp/static/'
 LOCAL = 'static/'
 
 # VARIABLE / table name # old name
-ID_DDU = 'ID'  # 'ID_DDU',
+# id should be lowercase, this is ms excell bug
+ID_DDU = 'id'  # 'ID_DDU',
 DDU_DOC_DESC_DATE = 'Дата ДДУ'  # 'DduDocDesc_date',
 DDU_DOC_DESC_NUMBER = '№ ДДУ'  # 'DduDocDesc_number'
 DDU_DATE = 'Дата регистрации ДДУ'  # 'DduDate',
@@ -431,13 +432,17 @@ def parseAddress(data):
     # result[TYPE] = tmp and tmp.groups()[0].lower() or ""
 
     # Object Anton
+    # это регулярка состоит из трех частей:
+    # первая, необязательная, которая сожержит в основном описания.
+    # вторая, обязательная, содержит непосредственно упоминание объекта.
+    # третья, необязательная, работает аналогично первой и закрывает дыры, оставленные первыми тремя.
+    # todo: упростить эту регулярку, переписав через оператор or
     tmp = re.compile("Объект долевого строительства[: ]*(.*?)[,;]").search(data)
     tmp = tmp and tmp.groups()[0].lower() or ""
     re_obj_pre = "(нежил.{0,30}|жил.{0,30}|.*комнат.{0,30}|офис.{0,30}|встр.{0,30}|\d.?к.{0,30})?"
     re_obj_body = "(квартира|помещение|апартамент|.*комнатная|.{0.30}место|студия|комнаты?)"
     re_obj_suf = "(.{0,30}кладовая|.{0,30}стоянка|.{0,30}место|.{0,30}студия|.{0,30}нат[аы]|.{0,30}ное|.{0,30}ние|" \
                     ".{0,30}квартира|.{0,30}апартаменты?)?\)?"
-    
     tmp = re.compile("({pre}{body}{suff})".format(pre=re_obj_pre,
                                                   body=re_obj_body,
                                                   suff=re_obj_suf)).search(tmp)

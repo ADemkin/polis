@@ -129,12 +129,11 @@ V_OSYASH_TYPO = [
     'оси6 ',
     'св осях ']
 
-
 STROIT_OSI_TYPO = [
- 'строит. оси:',
- 'строительыне оси:',
- '. строительне оси',
- '. строительные оси ']
+    'строит. оси:',
+    'строительыне оси:',
+    '. строительне оси',
+    '. строительные оси ']
 
 
 SECTION_TYPO = [
@@ -215,7 +214,9 @@ DOGOVOR_UCHASTIA_TYPO = [
     'Договор участия в долевом строительств ',
     'Договор участия в долевом строительства ',
     'Договор долевого участия ',
-    'Договоручастия в долевом строительстве'
+    'Договоручастия в долевом строительстве ',
+    'Договор участия с долевом строительстве ',
+    
 ]
 
 ROOMS_NUMBER_TYPO = [
@@ -273,7 +274,7 @@ def replaceTyposInAddress(data):
     for to_replace in KVARTIRA_TYPO:
         data = data.replace(to_replace, " квартира ")
     for to_replace in APPARTAMENT_TYPO:
-        data = data.replace(to_replace, "апартамент")
+        data = data.replace(to_replace, "апартамент ")
   
     data = data.replace("в осях ", " в осях ")
     data = data.replace("Тип", "тип: ")
@@ -294,6 +295,7 @@ def replaceTyposInDduDesc(data):
         data = data.replace(to_replace, "Соглашение об уступке ")
     for to_replace in DOGOVOR_UCHASTIA_TYPO:
         data = data.replace(to_replace, "Договор участия в долевом строительстве ")
+    data = data.replace("Договор oт", "Договор от") # o is latin
     return data
 
 
@@ -315,6 +317,8 @@ def extractDduDocDesc(desc):
     # search = re.compile("Договор участия в долевом строительстве[^;,]* oт ("+DATE_REGEXP+")").search(desc)  # Oleg
     search = re.compile("Договор участия в долевом строительстве[^;]* oт ("+DATE_REGEXP+")").search(desc)  # Anton
     search = search or re.compile("Договор.* долевого.* участия oт ("+DATE_REGEXP+")").search(desc)
+    search = search or re.compile("Договор участия.* oт ("+DATE_REGEXP+")").search(desc)  # Anton
+    search = search or re.compile("Договор от ("+DATE_REGEXP+")").search(desc)  # Anton
     search = search or re.compile("строительстве .*многоквартирного[^;,]* oт ("+DATE_REGEXP+")").search(desc)
     search = search or re.compile("строительстве .* по адресу.* oт ("+DATE_REGEXP+")").search(desc)
     search = search or re.compile("участия в долевом строительстве[^;,]* oт ("+DATE_REGEXP+")").search(desc)
@@ -323,9 +327,13 @@ def extractDduDocDesc(desc):
     result[DDU_DOC_DESC_DATE] = search and search.groups()[0] or ""
     
     # parse ddu number
+    # todo: create additional complex regexp for ddu number (for space typos and so on)
     search = re.compile("Договор участия в долевом строительстве.* oт[^№]*(№.*?)[;, ]").search(desc)
     search = search or re.compile("Договор участия в долевом строительстве.*(№.*?) oт[^№]*").search(desc)  # Anton
+    search = search or re.compile("Договор участия.*(№.*?).* oт[^№]*").search(desc)  # Anton
     search = search or re.compile("Договор [^№]*(№.*?) .*участия").search(desc)
+    search = search or re.compile("Договор от[^№]*(№.{2,25}?)").search(desc)  # Anton
+    search = search or re.compile("Дополнительное.* соглашение[^;,]* oт[^№]*(№.{1,25}?)").search(desc)  # Anton
     search = search or re.compile("строительстве.*oт[^№]*(№.*?)[;, ]").search(desc)
     search = search or re.compile("Соглашение об уступке[^;,]* oт[^№]*(№.*?)[;, ]").search(desc)
     result[DDU_DOC_DESC_NUMBER] = search and search.groups()[0] or ""

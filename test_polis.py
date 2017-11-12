@@ -820,22 +820,138 @@ class TestStringMethods(unittest.TestCase):
         res = impo.parseAddress(s)
         self.assertEqual(res[impo.TYPE], '- парковочное место')
 
-        
-        # s = ""
-        # res = impo.parseAddress(s)
-        # self.assertEqual(res[impo.TYPE], '')
-        #
-        
-        # s = ""
-        # res = impo.parseAddress(s)
-        # self.assertEqual(res[impo.TYPE], '')
-        #
-        
-        # s = ""
-        # res = impo.parseAddress(s)
-        # self.assertEqual(res[impo.TYPE], '')
-        #
-        
+    def test_ddu_number_and_date_anton_october_2017(self):
+        s = "Договор участия в долевом строительстве №Д-ОС-02/15-3/1-156,157,158,159,160,161,162,163 oт 25.02.2015"
+        res = impo.extractDduDocDesc(s)
+        self.assertEqual(res[impo.DDU_DOC_DESC_NUMBER], '№Д-ОС-02/15-3/1-156,157,158,159,160,161,162,163')
+        self.assertEqual(res[impo.DDU_DOC_DESC_DATE], '25.02.2015')
+        s = 'Договор участия в долевом строительстве №Д-ОС-01/15-3/2-14 oт 30.01.2015'
+        res = impo.extractDduDocDesc(s)
+        self.assertEqual(res[impo.DDU_DOC_DESC_NUMBER], '№Д-ОС-01/15-3/2-14')
+        self.assertEqual(res[impo.DDU_DOC_DESC_DATE], '30.01.2015')
+        s = 'Договор  участия в долевом строительстве oт 31.07.2016 № 2.1/2/26/К'
+        res = impo.extractDduDocDesc(s)
+        self.assertEqual(res[impo.DDU_DOC_DESC_NUMBER], '№2.1/2/26/К')
+        self.assertEqual(res[impo.DDU_DOC_DESC_DATE], '31.07.2016')
+        s = 'Договор № Н-1/6 участия в долевом строительстве oт 28.03.2014'
+        res = impo.extractDduDocDesc(s)
+        self.assertEqual(res[impo.DDU_DOC_DESC_NUMBER], '№Н-1/6')
+        self.assertEqual(res[impo.DDU_DOC_DESC_DATE], '28.03.2014')
+        s = 'Договор № Д-ОС-11/16-3/1-333 участия в долевом строительстве oт 30.11.2016'
+        res = impo.extractDduDocDesc(s)
+        self.assertEqual(res[impo.DDU_DOC_DESC_NUMBER], '№Д-ОС-11/16-3/1-333')
+        self.assertEqual(res[impo.DDU_DOC_DESC_DATE], '30.11.2016')
+        s = 'Договор участия в долевом строительстве №117-ГЛ-8.2-3 oт 28.03.2017'
+        res = impo.extractDduDocDesc(s)
+        self.assertEqual(res[impo.DDU_DOC_DESC_NUMBER], '№117-ГЛ-8.2-3')
+        self.assertEqual(res[impo.DDU_DOC_DESC_DATE], '28.03.2017')
+        s = "Договор участия в долевом строительстве №Д-ОС-02/15-3/1-156,157,158,159,160,161,162,163 oт 25.02.2015"
+        res = impo.extractDduDocDesc(s)
+        self.assertEqual(res[impo.DDU_DOC_DESC_NUMBER], "№Д-ОС-02/15-3/1-156,157,158,159,160,161,162,163")
+        self.assertEqual(res[impo.DDU_DOC_DESC_DATE], "25.02.2015")
+        s = "Договор участия в долевом строительстве №Д-ОС-01/15-3/2-14 oт 30.01.2015"
+        res = impo.extractDduDocDesc(s)
+        self.assertEqual(res[impo.DDU_DOC_DESC_NUMBER], "№Д-ОС-01/15-3/2-14")
+        self.assertEqual(res[impo.DDU_DOC_DESC_DATE], "30.01.2015")
+        s = "Договор участия в долевом строительстве №Д-ОС-11/15-3/1-350 oт 09.11.2015"
+        res = impo.extractDduDocDesc(s)
+        self.assertEqual(res[impo.DDU_DOC_DESC_NUMBER], "№Д-ОС-11/15-3/1-350")
+        self.assertEqual(res[impo.DDU_DOC_DESC_DATE], "09.11.2015")
+        s = "Договор № Д-ОС-11/16-3/1-333 участия в долевом строительстве oт 30.11.2016"
+        res = impo.extractDduDocDesc(s)
+        self.assertEqual(res[impo.DDU_DOC_DESC_NUMBER], "№Д-ОС-11/16-3/1-333")
+        s = "Соглашение об уступке прав oт 20.04.2017"
+        res = impo.extractDduDocDesc(s)
+        self.assertEqual(res[impo.DDU_DOC_DESC_DATE], "20.04.2017")
+        s = "Договор  участия в долевом строительстве oт 31.07.2016 № 2.1/2/26/К"
+        res = impo.extractDduDocDesc(s)
+        self.assertEqual(res[impo.DDU_DOC_DESC_NUMBER], "№2.1/2/26/К")
+        self.assertEqual(res[impo.DDU_DOC_DESC_DATE], "31.07.2016")
+        s = "Договор  участия  в долевом строительстве oт 28.04.2017 № 177б-БАЛ/04-17АН"
+        res = impo.extractDduDocDesc(s)
+        self.assertEqual(res[impo.DDU_DOC_DESC_NUMBER], "№177б-БАЛ/04-17АН")
+        s = "Договор   участия в долевом строительстве oт 21.02.2017 № 2231/И-17/1"
+        res = impo.extractDduDocDesc(s)
+        self.assertEqual(res[impo.DDU_DOC_DESC_NUMBER], "№2231/И-17/1")
+        s = "Договор № Н-1/6 участия в долевом строительстве oт 28.03.2014"
+        res = impo.extractDduDocDesc(s)
+        self.assertEqual(res[impo.DDU_DOC_DESC_NUMBER], "№Н-1/6")
+        s = "Договор участия в долевом строительстве №117-ГЛ-8.2-3 oт 28.03.2017"
+        res = impo.extractDduDocDesc(s)
+        self.assertEqual(res[impo.DDU_DOC_DESC_NUMBER], "№117-ГЛ-8.2-3")
+        s = "Договор № 114И-ГЛ-8.5-1 участия в долевом строительстве oт 10.08.2017"
+        res = impo.extractDduDocDesc(s)
+        self.assertEqual(res[impo.DDU_DOC_DESC_NUMBER], "№114И-ГЛ-8.5-1")
+        # todo: исправить опечатки
+        # Опечатка
+        # s = "Договор участия в долевом строительстве П-29 oт 05.05.2017"
+        # res = impo.extractDduDocDesc(s)
+        # self.assertNotEqual(res[impo.DDU_DOC_DESC_NUMBER], None)
+        # self.assertEqual(res[impo.DDU_DOC_DESC_NUMBER], "")
+        # self.assertEqual(res[impo.DDU_DOC_DESC_DATE], "")
+        s = "Договор участия в долевом строительстве № ДДУ0058-ЛГ1-М-06/17 oт 26.06.2017"
+        res = impo.extractDduDocDesc(s)
+        self.assertEqual(res[impo.DDU_DOC_DESC_NUMBER], "№ДДУ0058-ЛГ1-М-06/17")
+        s = "Договоручастия в долевом строительстве oт 30.06.2017 №  ДДУ0093И-ЛГ1-06/17"
+        res = impo.extractDduDocDesc(s)
+        self.assertEqual(res[impo.DDU_DOC_DESC_NUMBER], "№ДДУ0093И-ЛГ1-06/17")
+        self.assertEqual(res[impo.DDU_DOC_DESC_DATE], "30.06.2017")
+        s = "Договор № 98/А-ФЛ-ДУ участия в долевом строительстве oт 27.08.2014"
+        res = impo.extractDduDocDesc(s)
+        self.assertEqual(res[impo.DDU_DOC_DESC_NUMBER], "№98/А-ФЛ-ДУ")
+        self.assertEqual(res[impo.DDU_DOC_DESC_DATE], "27.08.2014")
+        s = "Договор № ДДУ/НП14-02-04-089/1 участия в долевом строительстве жилого дома oт 05.06.2017"
+        res = impo.extractDduDocDesc(s)
+        self.assertEqual(res[impo.DDU_DOC_DESC_NUMBER], "№ДДУ/НП14-02-04-089/1")
+        self.assertEqual(res[impo.DDU_DOC_DESC_DATE], "05.06.2017")
+        s = "Договор № 107-СМ-3 участия в долевом строительстве oт 06.06.2017"
+        res = impo.extractDduDocDesc(s)
+        self.assertEqual(res[impo.DDU_DOC_DESC_NUMBER], "№107-СМ-3")
+        self.assertEqual(res[impo.DDU_DOC_DESC_DATE], "06.06.2017")
+        s = "Договор  участия в долевом строительстве oт 29.04.2016 № 54658/0416-ЮШ11"
+        res = impo.extractDduDocDesc(s)
+        self.assertEqual(res[impo.DDU_DOC_DESC_NUMBER], "№54658/0416-ЮШ11")
+        self.assertEqual(res[impo.DDU_DOC_DESC_DATE], "29.04.2016")
+        s = "Договор № 14059/0517-ТВ1 участия в долевом строительстве oт 31.05.2017"
+        res = impo.extractDduDocDesc(s)
+        self.assertEqual(res[impo.DDU_DOC_DESC_NUMBER], "№14059/0517-ТВ1")
+        self.assertEqual(res[impo.DDU_DOC_DESC_DATE], "31.05.2017")
+    
+        # TYPO, уточнить у Полины дальнейшие действия
+        # s = "Договор 2925 участия в долевом строительстве многоквартирного жилого дома oт 23.04.2016"
+        # res = impo.extractDduDocDesc(s)
+        # self.assertNotEqual(res[impo.DDU_DOC_DESC_NUMBER], None)
+        # self.assertEqual(res[impo.DDU_DOC_DESC_NUMBER], "")
+        # self.assertEqual(res[impo.DDU_DOC_DESC_DATE], "")
+    
+        # Новый формат, уточнить у Полины
+        # s = "Договор oт 31.07.2017 №19"
+        # res = impo.extractDduDocDesc(s)
+        # self.assertEqual(res[impo.DDU_DOC_DESC_NUMBER], "")
+        # self.assertEqual(res[impo.DDU_DOC_DESC_DATE], "")
+    
+        # Новый формат, уточнить у Полины что делать с такими
+        # s = "Дополнительное соглашение oт 09.02.2015 №1"
+        # res = impo.extractDduDocDesc(s)
+        # self.assertNotEqual(res[impo.DDU_DOC_DESC_NUMBER], None)
+        # self.assertEqual(res[impo.DDU_DOC_DESC_NUMBER], "")
+        # self.assertEqual(res[impo.DDU_DOC_DESC_DATE], "")
+    
+        s = "Договор участия в долевом строительстве жилого комплекса Светлый мир Я-Романтик. oт 20.12.2016 № 20/12/2016-К-815-П5-19"
+        res = impo.extractDduDocDesc(s)
+        self.assertEqual(res[impo.DDU_DOC_DESC_NUMBER], "№20/12/2016-К-815-П5-19")
+        self.assertEqual(res[impo.DDU_DOC_DESC_DATE], "20.12.2016")
+        s = "Соглашение от уступке права требования oт 11.12.2016 №11/12/2016-ЯР-2-42-Н-У"
+        res = impo.extractDduDocDesc(s)
+        self.assertEqual(res[impo.DDU_DOC_DESC_NUMBER], "№11/12/2016-ЯР-2-42-Н-У")
+        self.assertEqual(res[impo.DDU_DOC_DESC_DATE], "11.12.2016")
+        s = "Договор  участия в долевом строительстве oт 03.10.2016 № 03/10/2016-ЯР-2-7-913"
+        res = impo.extractDduDocDesc(s)
+        self.assertEqual(res[impo.DDU_DOC_DESC_NUMBER], "№03/10/2016-ЯР-2-7-913")
+        self.assertEqual(res[impo.DDU_DOC_DESC_DATE], "03.10.2016")
+        s = "Договор  участия в долевом строительстве oт 02.06.2017"
+        res = impo.extractDduDocDesc(s)
+        self.assertEqual(res[impo.DDU_DOC_DESC_DATE], "02.06.2017")
         
         
 if __name__ == '__main__':

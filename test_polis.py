@@ -23,7 +23,7 @@ class TestStringMethods(unittest.TestCase):
         self.assertEqual(impo.extractDduDocDesc(s), e)
 
 
-    def _test_generic(self):
+    def test_generic(self):
         s = "Договор участия в долевом строительстве oт 28.01.2014 №5823/0114-М10"
         e = {impo.DDU_DOC_DESC_DATE  :'28.01.2014',
              impo.DDU_DOC_DESC_NUMBER:"№5823/0114-М10",
@@ -42,11 +42,11 @@ class TestStringMethods(unittest.TestCase):
         s = "Дополнительное соглашение oт 30.07.2014"
         res = impo.extractDduDocDesc(s)
         self.assertEqual(res[impo.DDU_DOC_DESC_DATE], "30.07.2014")
-        self.assertEqual(res[impo.DDU_DOC_DESC_NUMBER], None)
+        self.assertEqual(res[impo.DDU_DOC_DESC_NUMBER], "")  # was None
         s = "Соглашение об уступке прав oт 20.04.2017"
         res = impo.extractDduDocDesc(s)
         self.assertEqual(res[impo.DDU_DOC_DESC_DATE], "20.04.2017")
-        self.assertEqual(res[impo.DDU_DOC_DESC_NUMBER], None)
+        self.assertEqual(res[impo.DDU_DOC_DESC_NUMBER], "")  # was None
         s = "Соглашение о замене стороны в Договоре № 51790/0116-ТВ2 от 29 января 2016 г. участия в долевом строительстве oт 22.09.2016; Договор участия в долевом строительстве oт 29.01.2016 №51790/0116-ТВ2, дата регистрации 13.04.2016, №78-78/038-78/052/202/2016-161/1"
         res = impo.extractDduDocDesc(s)
         self.assertEqual(res[impo.DDU_DOC_DESC_DATE], "29.01.2016")
@@ -54,7 +54,7 @@ class TestStringMethods(unittest.TestCase):
         s = "Соглашение о замене стороны oт 12.05.2014"
         res = impo.extractDduDocDesc(s)
         self.assertEqual(res[impo.DDU_DOC_DESC_DATE], "12.05.2014")
-        self.assertEqual(res[impo.DDU_DOC_DESC_NUMBER], None)
+        self.assertEqual(res[impo.DDU_DOC_DESC_NUMBER], "")  # was None
 
 
     def test_primorsky_2(self):
@@ -954,6 +954,30 @@ class TestStringMethods(unittest.TestCase):
         # self.assertEqual(res[impo.DDU_DOC_DESC_NUMBER], "П-29")
         self.assertEqual(res[impo.DDU_DOC_DESC_DATE], "05.05.2017")
 
+
+    def _test_type_dogovor_anton_october_2017(self):
+        s = "процессия"
+        res = impo.extractDduDocDesc(s)
+        self.assertEqual(res[impo.DOGOVOR_TYPE], "Уступка")
+        s = "уступка"
+        res = impo.extractDduDocDesc(s)
+        self.assertEqual(res[impo.DOGOVOR_TYPE], "Уступка")
+        s = "замена сторны"
+        res = impo.extractDduDocDesc(s)
+        self.assertEqual(res[impo.DOGOVOR_TYPE], "Замена стороны")
+        s = "перемена стороны"
+        res = impo.extractDduDocDesc(s)
+        self.assertEqual(res[impo.DOGOVOR_TYPE], "Замена стороны")
+        s = "расторжение договора"
+        res = impo.extractDduDocDesc(s)
+        self.assertEqual(res[impo.DOGOVOR_TYPE], "Расторжение")
+        s = "дополнительное соглашение"
+        res = impo.extractDduDocDesc(s)
+        self.assertEqual(res[impo.DOGOVOR_TYPE], "Доп. соглашение")
+        s = "Договор участия в долевом строительстве oт 23.12.2016 №23/12/2016-БХ-Б-268 АБЫРВАЛГ"
+        res = impo.extractDduDocDesc(s)
+        self.assertEqual(res[impo.DOGOVOR_TYPE], "ДДУ")
+        
         
         
 if __name__ == '__main__':

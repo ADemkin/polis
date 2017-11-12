@@ -344,15 +344,17 @@ def extractDduDocDesc(desc):
         result[DDU_DATE] = checkDate.groups()[0]
 
     desc = desc.lower()
-    #
+    
     # Type_dogovor
     # Определяем тип договора
-    if "уступк" in desc:
+    if "уступ" in desc or "цесси" in desc:
         result[DOGOVOR_TYPE] = "Уступка"
-    elif "замен" in desc:
+    elif "замен" in desc or "перемен" in desc:
         result[DOGOVOR_TYPE] = "Замена стороны"
-    elif "растор" in desc:
+    elif "расторж" in desc:
         result[DOGOVOR_TYPE] = "Расторжение"
+    elif "соглаш" in desc:
+        result[DOGOVOR_TYPE] = "Доп. соглашение"
     else:
         result[DOGOVOR_TYPE] = "ДДУ"
     return result

@@ -882,13 +882,7 @@ class TestStringMethods(unittest.TestCase):
         s = "Договор № 114И-ГЛ-8.5-1 участия в долевом строительстве oт 10.08.2017"
         res = impo.extractDduDocDesc(s)
         self.assertEqual(res[impo.DDU_DOC_DESC_NUMBER], "№114И-ГЛ-8.5-1")
-        # todo: исправить опечатки
-        # Опечатка
-        # s = "Договор участия в долевом строительстве П-29 oт 05.05.2017"
-        # res = impo.extractDduDocDesc(s)
-        # self.assertNotEqual(res[impo.DDU_DOC_DESC_NUMBER], None)
-        # self.assertEqual(res[impo.DDU_DOC_DESC_NUMBER], "")
-        # self.assertEqual(res[impo.DDU_DOC_DESC_DATE], "")
+
         s = "Договор участия в долевом строительстве № ДДУ0058-ЛГ1-М-06/17 oт 26.06.2017"
         res = impo.extractDduDocDesc(s)
         self.assertEqual(res[impo.DDU_DOC_DESC_NUMBER], "№ДДУ0058-ЛГ1-М-06/17")
@@ -924,18 +918,10 @@ class TestStringMethods(unittest.TestCase):
         # self.assertEqual(res[impo.DDU_DOC_DESC_NUMBER], "")
         # self.assertEqual(res[impo.DDU_DOC_DESC_DATE], "")
     
-        # Новый формат, уточнить у Полины
-        # s = "Договор oт 31.07.2017 №19"
-        # res = impo.extractDduDocDesc(s)
-        # self.assertEqual(res[impo.DDU_DOC_DESC_NUMBER], "")
-        # self.assertEqual(res[impo.DDU_DOC_DESC_DATE], "")
-    
-        # Новый формат, уточнить у Полины что делать с такими
-        # s = "Дополнительное соглашение oт 09.02.2015 №1"
-        # res = impo.extractDduDocDesc(s)
-        # self.assertNotEqual(res[impo.DDU_DOC_DESC_NUMBER], None)
-        # self.assertEqual(res[impo.DDU_DOC_DESC_NUMBER], "")
-        # self.assertEqual(res[impo.DDU_DOC_DESC_DATE], "")
+        s = "Дополнительное соглашение oт 09.02.2015 №1"
+        res = impo.extractDduDocDesc(s)
+        self.assertEqual(res[impo.DDU_DOC_DESC_NUMBER], "№1")
+        self.assertEqual(res[impo.DDU_DOC_DESC_DATE], "09.02.2015")
     
         s = "Договор участия в долевом строительстве жилого комплекса Светлый мир Я-Романтик. oт 20.12.2016 № 20/12/2016-К-815-П5-19"
         res = impo.extractDduDocDesc(s)
@@ -952,6 +938,22 @@ class TestStringMethods(unittest.TestCase):
         s = "Договор  участия в долевом строительстве oт 02.06.2017"
         res = impo.extractDduDocDesc(s)
         self.assertEqual(res[impo.DDU_DOC_DESC_DATE], "02.06.2017")
+        s = "Договор от 31.07.2017 №19"
+        res = impo.extractDduDocDesc(s)
+        self.assertEqual(res[impo.DDU_DOC_DESC_DATE], '31.07.2017')
+        self.assertEqual(res[impo.DDU_DOC_DESC_NUMBER], '№19')
+        # TYPOS:
+        # TYPO: Space in ddu number
+        s = "Договор участия №СД 5-3/1-4 в долевом строительстве жилого дома oт 30.01.2016"
+        res = impo.extractDduDocDesc(s)
+        # self.assertEqual(res[impo.DDU_DOC_DESC_NUMBER], '№СД 5-3/1-4')
+        self.assertEqual(res[impo.DDU_DOC_DESC_DATE], '30.01.2016')
+        # TYPO: no number
+        s = "Договор участия в долевом строительстве П-29 oт 05.05.2017"
+        res = impo.extractDduDocDesc(s)
+        # self.assertEqual(res[impo.DDU_DOC_DESC_NUMBER], "П-29")
+        self.assertEqual(res[impo.DDU_DOC_DESC_DATE], "05.05.2017")
+
         
         
 if __name__ == '__main__':

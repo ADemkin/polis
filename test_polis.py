@@ -955,7 +955,7 @@ class TestStringMethods(unittest.TestCase):
         self.assertEqual(res[impo.DDU_DOC_DESC_DATE], "05.05.2017")
 
 
-    def _test_type_dogovor_anton_october_2017(self):
+    def test_type_dogovor_anton_october_2017(self):
         s = "процессия"
         res = impo.extractDduDocDesc(s)
         self.assertEqual(res[impo.DOGOVOR_TYPE], "Уступка")

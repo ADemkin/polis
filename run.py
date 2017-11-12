@@ -16,7 +16,7 @@ ROOT = '/var/tmp/polis/static/'
 STATIC = 'var/tmp/static/'
 LOCAL = 'static/'
 
-# VARIABLE / table name # old name
+# VARIABLE / table name # old name (same name in xml)
 # id should be lowercase, this is ms excell bug
 ID_DDU = 'id'  # 'ID_DDU',
 DDU_DOC_DESC_DATE = 'Дата ДДУ'  # 'DduDocDesc_date',

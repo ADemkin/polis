@@ -942,6 +942,10 @@ class TestStringMethods(unittest.TestCase):
         res = impo.extractDduDocDesc(s)
         self.assertEqual(res[impo.DDU_DOC_DESC_DATE], '31.07.2017')
         self.assertEqual(res[impo.DDU_DOC_DESC_NUMBER], '№19')
+        s = "Договор участия в долевом строительстве жилого дома oт 30.08.2017 №Договор № ДДУ/НП14-03-06-218/1"
+        res = impo.extractDduDocDesc(s)
+        self.assertEqual(res[impo.DDU_DOC_DESC_DATE], '30.08.2017')
+        self.assertEqual(res[impo.DDU_DOC_DESC_NUMBER], '№ДДУ/НП14-03-06-218/1')
         # TYPOS:
         # TYPO: Space in ddu number
         s = "Договор участия №СД 5-3/1-4 в долевом строительстве жилого дома oт 30.01.2016"

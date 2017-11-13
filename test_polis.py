@@ -508,7 +508,7 @@ class TestStringMethods(unittest.TestCase):
 
         s = "Объект долевого строительства: Нежилое помещение (Автостоянка), номер этажа: 5, номер объекта: 5-13(735), проектная (планируемая) площадь: 1902 кв.м, местоположение: Санкт-Петербург, Василеостровский район, Невская губа, уч.28, (западнее Васильевского острова, квартал 25), 3 этап, строительные оси м/м: 12-13; К-И, примерная площадь м/м: 12 кв. м., 1/59 доли в праве собственности"
         tmp = impo.parseAddress(s)
-        res = impo.parseExtraFields(tmp)
+        res = impo.define_object_type(tmp)
         self.assertEqual(res[impo.OBJECT_TYPE], 'машиноместо')
 
 
@@ -960,7 +960,7 @@ class TestStringMethods(unittest.TestCase):
 
 
     def test_type_dogovor_anton_october_2017(self):
-        s = "процессия"
+        s = "Договор уступки прав (цессии)  по договору участия в долевом ст"
         res = impo.extractDduDocDesc(s)
         self.assertEqual(res[impo.DOGOVOR_TYPE], "Уступка")
         s = "уступка"

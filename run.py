@@ -10,7 +10,6 @@ from bottle import route, run, template, post, request, HTTPResponse, static_fil
 from io import StringIO
 
 # scp ~/impo.py root@138.197.223.128:/var/tmp/impo.py
-# все area, floor, corpus, section, entrance с дефисом перед ним нужно преобразовать в без дефиса!
 
 ROOT = '/var/tmp/polis/static/'
 STATIC = 'var/tmp/static/'
@@ -256,7 +255,6 @@ def replaceTyposInAddress(data):
     data = data.replace(" площадь м/м ", " площадь ")
     data = data.replace(" площадь помещения ", " площадь ")
     data = data.replace(" площадь парк. места ", " площадь ")
-
     data = data.replace("3орпус", " 3 корпус ")
     data = data.replace("секция/Блок - 7/1,", "секция: 7, корпус: 1,")
     data = data.replace("секция объекта", " секция ")
@@ -296,7 +294,7 @@ def replaceTyposInDduDesc(data):
         data = data.replace(to_replace, "Соглашение об уступке ")
     for to_replace in DOGOVOR_UCHASTIA_TYPO:
         data = data.replace(to_replace, "Договор участия в долевом строительстве ")
-    data = data.replace("Договор oт", "Договор от") # o is latin
+    data = data.replace("Договор oт", "Договор от") # o is latin, lol
     return data
 
 
@@ -369,29 +367,32 @@ def extractDduDocDesc(desc):
 #     else:
 #         return value
 
-# define type here
-def parseExtraFields(data):
+# главный классификатор типа помещения
+# Object Type
+def define_object_type(data):
     result = dict()
     data[FLOOR] = data[FLOOR] or ""
     data[OBJECT_NUMBER] = data[OBJECT_NUMBER] or ""
 
     area_value = data[AREA].replace(",", ".")
     full_address = data[FULL_ADDRESS].lower()
+    
     if "ДОУ" in full_address:
         #
         result[OBJECT_TYPE] = "ДОУ"
+        
     elif "апарт" in full_address or \
-         "аппарт" in full_address or \
-         "апорт" in full_address or \
          "апарт" in data[TYPE] or \
          "нежил" in data[TYPE] and "комн" in data[TYPE] or \
          "нежил" in data[TYPE] and "студ" in data[TYPE] or \
          "нежил" in data[TYPE] and "комн" in full_address:
         #
         result[OBJECT_TYPE] = "апартамент"
+        
     elif "квартир" in data[TYPE]:
         #
         result[OBJECT_TYPE] = "квартира"
+        
     elif "машин" in full_address or \
          "машин" in data[TYPE] or \
          "стоян" in data[TYPE] or \
@@ -399,6 +400,7 @@ def parseExtraFields(data):
          "уров" in data[FLOOR]:
         #
         result[OBJECT_TYPE] = "машиноместо"
+        
     elif "нежил" in data[TYPE] and BOOL(lambda: float(data[FLOOR]) >= 4) or \
          "нежил" in data[TYPE] and BOOL(lambda: float(data[FLOOR]) >= 2) and BOOL(lambda: float(area_value) < 70):
         #
@@ -408,6 +410,7 @@ def parseExtraFields(data):
          BOOL(lambda: float(area_value) < 11):
         #
         result[OBJECT_TYPE] = "кладовая"
+        
     elif "встроен" in full_address or \
          "офис" in full_address or \
          "встроен" in data[TYPE] or \
@@ -415,10 +418,12 @@ def parseExtraFields(data):
          "н" in data[OBJECT_NUMBER] and BOOL(lambda: float(data[FLOOR]) <= 3):
         #
         result[OBJECT_TYPE] = "нежилое"
+        
     elif not data[TYPE] and not full_address or \
          not data[TYPE] and not area_value:
         #
         result[OBJECT_TYPE] = "нд"
+        
     else:
         result[OBJECT_TYPE] = CHECK_THIS
         result[CHECK_THIS] = OBJECT_TYPE
@@ -467,6 +472,7 @@ def parseAddress(data):
     result[TYPE] = tmp and tmp.groups()[0].lower() or ""
     
     # Floor
+    # todo: standartize all negative values
     re_floor = "[на урвьеотмк.]*(\-\d[,.]?\d+|\-?\d+)[-оимый]*"
     tmp = re.compile("(цоколь\w*|подвал\w*|подзем\w*)").search(data)  # Anton
     tmp = tmp or re.compile("{floor}\s*этаж[е,.;]*".format(floor=re_floor)).search(data)  # Anton
@@ -479,14 +485,6 @@ def parseAddress(data):
     result[OBJECT_NUMBER] = tmp and wrap_data_like_value(tmp.groups()[0]) or ""
 
     # Area
-    
-    # Area v2.0
-    # re_area = "(\d{1,4}[,.]?\d{0,3}[,.]?\d{0,2})"
-    # tmp = re.compile("проектная.*планируемая.*площадь[: -]+{area}\s*кв\.м".format(area=re_area)).search(data)
-    # tmp = tmp or re.compile("общая площадь[: -]+{area}\s*кв\.м".format(area=re_area)).search(data)
-    # result[AREA] = tmp and tmp.groups()[0] or ""  # Anton
-    
-    # area v2.1 by Anton
     re_area_type = "(?:проектная|\(?планируемая\)?|общая|примерная)"
     re_area = "(\d{1,4}[,.]?\d{0,3}[,.]?\d{0,2})\s*кв[\. ]+м"
     tmp = re.compile("{type}\s*площадь[: -]+{area}".format(area=re_area, type=re_area_type)).findall(data) or "no info"
@@ -559,8 +557,6 @@ def parseAddress(data):
             # if no rooms detected and not studio
             result[ROOMS] = ""
             #result[CHECK_THIS] = "комнаты"
-            
-            
     # else:
     #     result[ROOMS] = CHECK_THIS
     #     result[CHECK_THIS] = "комнаты"
@@ -569,8 +565,8 @@ def parseAddress(data):
          "клад" in result[TYPE]:
         result[ROOMS] = ""
     elif "квартира" in result[TYPE]:
-        # If kvartira wwithout rooms
-        # debug("Something wrong with {}".format(result))
+        # If kvartira without rooms
+        # todo: check area and try to guess how many rooms
         result[ROOMS] = ""
     
     # save audit info
@@ -687,7 +683,7 @@ def process(input_file, csv_writer):
         res[SOURCE_FILE] = filename
         
         # set extra fields
-        res.update(parseExtraFields(res))
+        res.update(define_object_type(res))
         
         # output all fields as csv row
         csv_writer.writerow(res)

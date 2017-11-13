@@ -247,7 +247,7 @@ APPARTAMENT_TYPO = [
 
 
 def replaceTyposInAddress(data):
-    data = " " + data.replace("\n", " ").replace("  ", " ") + ";"
+    data = " " + data.replace("  ", " ") + ";"
     # trash
     data = data.replace("номер 473 этажа: 1, ", "номер этажа: 1, номер объекта: 473, ")
     data = data.replace(": Нежилое помещение, студия, ", ": Нежилое помещение студия, ")
@@ -291,7 +291,7 @@ def replaceTyposInAddress(data):
     return data
 
 def replaceTyposInDduDesc(data):
-    data = " " + data.replace("\n", " ").replace("  ", " ").replace("№ ","№") + " "
+    data = " " + data.replace("  ", " ").replace("№ ","№").replace("№Договор", "") + " "
     for to_replace in USTUPKA_PRAV_TYPO:
         data = data.replace(to_replace, "Соглашение об уступке ")
     for to_replace in DOGOVOR_UCHASTIA_TYPO:

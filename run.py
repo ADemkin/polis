@@ -607,11 +607,11 @@ def has_no_data(root):
 
 
 def process(input_file, csv_writer):
-    inputFile = input_file.file
+    inputFile = input_file.file.read().decode().replace("\n", " ")
     filename = os.path.splitext(input_file.raw_filename)[0]
     
     parser = xml.etree.ElementTree.XMLParser(encoding="UTF-8")
-    root = xml.etree.ElementTree.parse(inputFile, parser).getroot()
+    root = xml.etree.ElementTree.fromstring(inputFile, parser)#.getroot()
     
     if has_no_data(root):
         debug('{} has no data to parse'.format(filename))
@@ -698,8 +698,8 @@ def do_upload():
     try:
         print("BEGIN")
         output = StringIO()
-        spamwriter = csv.DictWriter(output, fieldnames=ALL_KEYS)
-        spamwriter.writeheader()
+        csv_writer = csv.DictWriter(output, fieldnames=ALL_KEYS)
+        csv_writer.writeheader()
         uploads = request.files.getall('upload')
         if len(uploads) == 0:
             return "<h4>nothing to upload</h4></br><a href='/'>go back</a>"
@@ -709,7 +709,7 @@ def do_upload():
             # if ext not in ('.xml', ".html", ".htm"):
             #     return "<h2>Unable to upload a file: This file type is not supported.</h2>"
             #q: why this is removed? do we use non-xml files?
-            process(upload, spamwriter)
+            process(upload, csv_writer)
             debug("{} processed".format(upload.raw_filename))
             #debug(upload.filename) #working, but cyrillic filenames is not working
         if len(uploads) > 1:

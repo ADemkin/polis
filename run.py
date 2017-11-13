@@ -606,7 +606,7 @@ def has_no_data(root):
     return False
 
 
-def process(input_file, spamwriter):
+def process(input_file, csv_writer):
     inputFile = input_file.file
     filename = os.path.splitext(input_file.raw_filename)[0]
     
@@ -689,7 +689,7 @@ def process(input_file, spamwriter):
         res.update(parseExtraFields(res))
         
         # output all fields as csv row
-        spamwriter.writerow(res)
+        csv_writer.writerow(res)
 
 
 

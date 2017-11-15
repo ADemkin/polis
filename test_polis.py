@@ -957,6 +957,43 @@ class TestStringMethods(unittest.TestCase):
         res = impo.extractDduDocDesc(s)
         # self.assertEqual(res[impo.DDU_DOC_DESC_NUMBER], "П-29")
         self.assertEqual(res[impo.DDU_DOC_DESC_DATE], "05.05.2017")
+        # additional
+        
+        s = "Договор участия в долевом строительстве Комплекса апартаментов для проживания №12/16 от 30.03.2016 г."
+        res = impo.extractDduDocDesc(s)
+        self.assertEqual(res[impo.DDU_DOC_DESC_NUMBER], "№12/16")
+        self.assertEqual(res[impo.DDU_DOC_DESC_DATE], "30.03.2016")
+
+        s = "Договор участия в долевом строительстве №2.3-4 от 13.09.2016 г."
+        res = impo.extractDduDocDesc(s)
+        self.assertEqual(res[impo.DDU_DOC_DESC_NUMBER], "№2.3-4")
+        self.assertEqual(res[impo.DDU_DOC_DESC_DATE], "13.09.2016")
+
+        s = "Договор участия в долевом строительстве Комплекса апартаментов для проживания от 03.03.2016 г."
+        res = impo.extractDduDocDesc(s)
+        #self.assertEqual(res[impo.DDU_DOC_DESC_NUMBER], "")
+        self.assertEqual(res[impo.DDU_DOC_DESC_DATE], "03.03.2016")
+
+        # s = ""
+        # res = impo.extractDduDocDesc(s)
+        # self.assertEqual(res[impo.DDU_DOC_DESC_NUMBER], "")
+        # self.assertEqual(res[impo.DDU_DOC_DESC_DATE], "")
+        #
+        # s = ""
+        # res = impo.extractDduDocDesc(s)
+        # self.assertEqual(res[impo.DDU_DOC_DESC_NUMBER], "")
+        # self.assertEqual(res[impo.DDU_DOC_DESC_DATE], "")
+        #
+        # s = ""
+        # res = impo.extractDduDocDesc(s)
+        # self.assertEqual(res[impo.DDU_DOC_DESC_NUMBER], "")
+        # self.assertEqual(res[impo.DDU_DOC_DESC_DATE], "")
+        #
+        # s = ""
+        # res = impo.extractDduDocDesc(s)
+        # self.assertEqual(res[impo.DDU_DOC_DESC_NUMBER], "")
+        # self.assertEqual(res[impo.DDU_DOC_DESC_DATE], "")
+        #
 
 
     def test_type_dogovor_anton_october_2017(self):
@@ -983,7 +1020,84 @@ class TestStringMethods(unittest.TestCase):
         self.assertEqual(res[impo.DOGOVOR_TYPE], "ДДУ")
         
         
+    def test_more_final_tests_october_2017(self):
+        pass
+        # номер и дата
+        #Договор участия в долевом строительстве Комплекса апартаментов для проживания №12/16 от 30.03.2016 г.
+        #Договор участия в долевом строительстве Комплекса апартаментов для проживания от 03.03.2016 г.
+        #Договор участия в долевом строительстве №2.3-4 от 13.09.2016 г.
+        #
+        #
+        #
+        #
+        #
+        #
+        #
+        # Номер объекта
+        # Объект долевого строительства: Однокомнатная квартира, номер этажа: 13, номер объекта: 169 секция В-Д, проектная (планируемая) площадь: 32,95 кв.м, местоположение: Московская область, г.Красноармейск, ул.Новая Жизнь, д.8а;
+        # Объект долевого строительства: Двухкомнатная квартира, номер этажа: 13, номер объекта: 171 (секция В-Г), проектная (планируемая) площадь: 46,95 кв.м, местоположение: Московская область, г.Красноармейск, ул.Новая Жизнь, д.8а;
+        #
+
+        # Договор участия в долевом строительстве №2.1-79 №2.1-79 от 01.09.2016 г.
+        #
+        #Квартира: площадь (без учета балконов, лоджий, веранд и террас) 57,6 кв.м.; количество комнат 2; расположение квартиры: секция 5, номер этажа: 1, строительный номер 2 Кадастровый(условный) номер: 90:00:000000:404. Земельный участок. . Категория земель: Земли населенных пунктов - жилая застройка. Площадь: 442738.00 кв.м. Адрес(местоположение): Россия, Республика Крым, Симферопольский район, на территории Мирновского сельского совета;
+        #
+        #Объект долевого участия: Квартира: площадь (без учета балконов, лоджий, веранд и террас) 37,5 кв.м.; количество комнат 1; расположение квартиры: секция 7, номер этажа: 2, строительный номер 208 Кадастровый(условный) номер: 90:00:000000:404. Земельный участок. . Категория земель: Земли населенных пунктов - жилая застройка. Площадь: 442738.00 кв.м. Адрес(местоположение): Россия, Республика Крым, Симферопольский район, на территории Мирновского сельского совета;
+        #
+        #
+        #
+        #
+        #
+        # Договор участия в долевом строительстве oт 26.12.2016 №060008602, выдавший орган: .
+        #
+        #
+        #
+        #
+        #
+        #
+        #
+        #
+        #
         
+    def test_simplify_floor(self):
+        
+        s = "подвальный"
+        r = impo.simplify_floor(s)
+        self.assertEqual(r, -1)
+        
+        s = "на отметке -5"
+        r = impo.simplify_floor(s)
+        self.assertEqual(r, -1)
+        
+        s = "на уровне -5.5"
+        r = impo.simplify_floor(s)
+        self.assertEqual(r, -1)
+        
+        s = "-5,95"
+        r = impo.simplify_floor(s)
+        self.assertEqual(r, -1)
+        
+        s = "-5000"
+        r = impo.simplify_floor(s)
+        self.assertEqual(r, -1)
+        
+        s = "-5,500"
+        r = impo.simplify_floor(s)
+        self.assertEqual(r, -1)
+        
+        s = "18"
+        r = impo.simplify_floor(s)
+        self.assertEqual(r, 18)
+        
+        s = "-1"
+        r = impo.simplify_floor(s)
+        self.assertEqual(r, -1)
+
+        s = ""
+        r = impo.simplify_floor(s)
+        self.assertEqual(r, "")
+
+
 if __name__ == '__main__':
     unittest.main()
 

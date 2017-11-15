@@ -333,10 +333,10 @@ def extractDduDocDesc(desc):
     # todo: create additional complex regexp for ddu number (for space typos and so on)
     search = re.compile("Договор участия в долевом строительстве.* от[^№]*(№.*?)[;, ]").search(desc)
     search = search or re.compile("Договор участия в долевом строительстве.*(№.*?) от[^№]*[:, ]*").search(desc)  # Anton
-    search = search or re.compile("Договор участия.*(№.*?).* от[^№]*").search(desc)  # Anton
+    search = search or re.compile("Договор участия.*(№.*?).* от[^№]*[:, ]*").search(desc)  # Anton
     search = search or re.compile("Договор [^№]*(№.*?) .*участия").search(desc)
-    search = search or re.compile("Договор от[^№]*(№.{2,25}?)").search(desc)  # Anton
-    search = search or re.compile("Дополнительное.* соглашение[^;,]* от[^№]*(№.{1,25}?)").search(desc)  # Anton
+    search = search or re.compile("Договор от[^№]*(№.{2,25}?)[:, ]*").search(desc)  # Anton
+    search = search or re.compile("Дополнительное.* соглашение[^;,]* от[^№]*(№.{1,25}?)[:, ]*").search(desc)  # Anton
     search = search or re.compile("строительстве.*от[^№]*(№.*?)[;, ]").search(desc)
     search = search or re.compile("Соглашение об уступке[^;,]* от[^№]*(№.*?)[;, ]").search(desc)
     result[DDU_DOC_DESC_NUMBER] = search and search.groups()[0] or ""

@@ -974,26 +974,16 @@ class TestStringMethods(unittest.TestCase):
         #self.assertEqual(res[impo.DDU_DOC_DESC_NUMBER], "")
         self.assertEqual(res[impo.DDU_DOC_DESC_DATE], "03.03.2016")
 
-        # s = ""
-        # res = impo.extractDduDocDesc(s)
-        # self.assertEqual(res[impo.DDU_DOC_DESC_NUMBER], "")
-        # self.assertEqual(res[impo.DDU_DOC_DESC_DATE], "")
-        #
-        # s = ""
-        # res = impo.extractDduDocDesc(s)
-        # self.assertEqual(res[impo.DDU_DOC_DESC_NUMBER], "")
-        # self.assertEqual(res[impo.DDU_DOC_DESC_DATE], "")
-        #
-        # s = ""
-        # res = impo.extractDduDocDesc(s)
-        # self.assertEqual(res[impo.DDU_DOC_DESC_NUMBER], "")
-        # self.assertEqual(res[impo.DDU_DOC_DESC_DATE], "")
-        #
-        # s = ""
-        # res = impo.extractDduDocDesc(s)
-        # self.assertEqual(res[impo.DDU_DOC_DESC_NUMBER], "")
-        # self.assertEqual(res[impo.DDU_DOC_DESC_DATE], "")
-        #
+        s = "Договор участия в долевом строительстве oт 26.12.2016 №060008602, выдавший орган: ."
+        res = impo.extractDduDocDesc(s)
+        self.assertEqual(res[impo.DDU_DOC_DESC_NUMBER], "№060008602")
+        self.assertEqual(res[impo.DDU_DOC_DESC_DATE], "26.12.2016")
+        
+        s = "Договор участия в долевом строительстве №2.1-79 №2.1-79 от 01.09.2016 г."
+        res = impo.extractDduDocDesc(s)
+        self.assertEqual(res[impo.DDU_DOC_DESC_NUMBER], "№2.1-79")
+        self.assertEqual(res[impo.DDU_DOC_DESC_DATE], "01.09.2016")
+        
 
 
     def test_type_dogovor_anton_october_2017(self):
@@ -1022,10 +1012,7 @@ class TestStringMethods(unittest.TestCase):
         
     def test_more_final_tests_october_2017(self):
         pass
-        # номер и дата
-        #Договор участия в долевом строительстве Комплекса апартаментов для проживания №12/16 от 30.03.2016 г.
-        #Договор участия в долевом строительстве Комплекса апартаментов для проживания от 03.03.2016 г.
-        #Договор участия в долевом строительстве №2.3-4 от 13.09.2016 г.
+
         #
         #
         #
@@ -1048,7 +1035,6 @@ class TestStringMethods(unittest.TestCase):
         #
         #
         #
-        # Договор участия в долевом строительстве oт 26.12.2016 №060008602, выдавший орган: .
         #
         #
         #

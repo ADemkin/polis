@@ -289,12 +289,16 @@ def replaceTyposInAddress(data):
     return data
 
 def replaceTyposInDduDesc(data):
-    data = " " + data.replace("  ", " ").replace("№ ","№").replace("№Договор", "") + " "
+    data = " " + data\
+        .replace("  ", " ")\
+        .replace("№ ","№")\
+        .replace("№Договор", "")\
+        .replace(" oт ", " от ") + " " # o is latin
     for to_replace in USTUPKA_PRAV_TYPO:
         data = data.replace(to_replace, "Соглашение об уступке ")
     for to_replace in DOGOVOR_UCHASTIA_TYPO:
         data = data.replace(to_replace, "Договор участия в долевом строительстве ")
-    data = data.replace("Договор oт", "Договор от") # o is latin, lol
+    #data = data.replace("Договор oт", "Договор от") # o is latin, lol
     return data
 
 
@@ -313,28 +317,28 @@ def extractDduDocDesc(desc):
     # print("DESC = " + desc + "|")
     
     # parse ddu date
-    # search = re.compile("Договор участия в долевом строительстве[^;,]* oт ("+DATE_REGEXP+")").search(desc)  # Oleg
-    search = re.compile("Договор участия в долевом строительстве[^;]* oт ("+DATE_REGEXP+")").search(desc)  # Anton
-    search = search or re.compile("Договор.* долевого.* участия oт ("+DATE_REGEXP+")").search(desc)
-    search = search or re.compile("Договор участия.* oт ("+DATE_REGEXP+")").search(desc)  # Anton
+    # search = re.compile("Договор участия в долевом строительстве[^;,]* от ("+DATE_REGEXP+")").search(desc)  # Oleg
+    search = re.compile("Договор участия в долевом строительстве[^;]* от ("+DATE_REGEXP+")").search(desc)  # Anton
+    search = search or re.compile("Договор.* долевого.* участия от ("+DATE_REGEXP+")").search(desc)
+    search = search or re.compile("Договор участия.* от ("+DATE_REGEXP+")").search(desc)  # Anton
     search = search or re.compile("Договор от ("+DATE_REGEXP+")").search(desc)  # Anton
-    search = search or re.compile("строительстве .*многоквартирного[^;,]* oт ("+DATE_REGEXP+")").search(desc)
-    search = search or re.compile("строительстве .* по адресу.* oт ("+DATE_REGEXP+")").search(desc)
-    search = search or re.compile("участия в долевом строительстве[^;,]* oт ("+DATE_REGEXP+")").search(desc)
-    search = search or re.compile("Дополнительное.* соглашение[^;,]* oт ("+DATE_REGEXP+")").search(desc)
-    search = search or re.compile("Соглашение об уступке[^;,]* oт ("+DATE_REGEXP+")").search(desc)
+    search = search or re.compile("строительстве .*многоквартирного[^;,]* от ("+DATE_REGEXP+")").search(desc)
+    search = search or re.compile("строительстве .* по адресу.* от ("+DATE_REGEXP+")").search(desc)
+    search = search or re.compile("участия в долевом строительстве[^;,]* от ("+DATE_REGEXP+")").search(desc)
+    search = search or re.compile("Дополнительное.* соглашение[^;,]* от ("+DATE_REGEXP+")").search(desc)
+    search = search or re.compile("Соглашение об уступке[^;,]* от ("+DATE_REGEXP+")").search(desc)
     result[DDU_DOC_DESC_DATE] = search and search.groups()[0] or ""
     
     # parse ddu number
     # todo: create additional complex regexp for ddu number (for space typos and so on)
-    search = re.compile("Договор участия в долевом строительстве.* oт[^№]*(№.*?)[;, ]").search(desc)
-    search = search or re.compile("Договор участия в долевом строительстве.*(№.*?) oт[^№]*").search(desc)  # Anton
-    search = search or re.compile("Договор участия.*(№.*?).* oт[^№]*").search(desc)  # Anton
+    search = re.compile("Договор участия в долевом строительстве.* от[^№]*(№.*?)[;, ]").search(desc)
+    search = search or re.compile("Договор участия в долевом строительстве.*(№.*?) от[^№]*[:, ]*").search(desc)  # Anton
+    search = search or re.compile("Договор участия.*(№.*?).* от[^№]*").search(desc)  # Anton
     search = search or re.compile("Договор [^№]*(№.*?) .*участия").search(desc)
     search = search or re.compile("Договор от[^№]*(№.{2,25}?)").search(desc)  # Anton
-    search = search or re.compile("Дополнительное.* соглашение[^;,]* oт[^№]*(№.{1,25}?)").search(desc)  # Anton
-    search = search or re.compile("строительстве.*oт[^№]*(№.*?)[;, ]").search(desc)
-    search = search or re.compile("Соглашение об уступке[^;,]* oт[^№]*(№.*?)[;, ]").search(desc)
+    search = search or re.compile("Дополнительное.* соглашение[^;,]* от[^№]*(№.{1,25}?)").search(desc)  # Anton
+    search = search or re.compile("строительстве.*от[^№]*(№.*?)[;, ]").search(desc)
+    search = search or re.compile("Соглашение об уступке[^;,]* от[^№]*(№.*?)[;, ]").search(desc)
     result[DDU_DOC_DESC_NUMBER] = search and search.groups()[0] or ""
     
     checkDate = re.compile("дата регистрации ("+DATE_REGEXP+"),").search(desc)
@@ -367,66 +371,121 @@ def extractDduDocDesc(desc):
 #     else:
 #         return value
 
+
+def simplify_floor(floor):
+    if floor == "":
+        return floor
+    elif not floor.isdigit():
+        return -1
+    else:
+        return int(floor)
+    
+
 # главный классификатор типа помещения
 # Object Type
 def define_object_type(data):
     result = dict()
-    data[FLOOR] = data[FLOOR] or ""
-    data[OBJECT_NUMBER] = data[OBJECT_NUMBER] or ""
-
-    area_value = data[AREA].replace(",", ".")
-    full_address = data[FULL_ADDRESS].lower()
     
-    if "ДОУ" in full_address:
+    floor = data[FLOOR] or ""
+    #floor = get_floor_type_helper(data[FLOOR]) or "" # добавить классификатор сюда и заменить в теле алгоритма
+    object_number = data[OBJECT_NUMBER].lower() or ""
+    area = data[AREA].replace(",", ".")
+    address = data[FULL_ADDRESS].lower()
+    type_ = data[TYPE].lower()
+    
+    
+    # сначала проверяем самые очевидные: ДОУ, стоянка, гараж\гск, кадовка. Исключаем доли. Дальше смотрим по этажу и
+    # площади. Дальше заглядываем в сами названия.
+    # В каком порядке мы заглядываем в адрес и тип?
+    #
+    
+    
+    
+    if "ДОУ" in address:
         #
         result[OBJECT_TYPE] = "ДОУ"
         
-    elif "апарт" in full_address or \
-         "апарт" in data[TYPE] or \
-         "нежил" in data[TYPE] and "комн" in data[TYPE] or \
-         "нежил" in data[TYPE] and "студ" in data[TYPE] or \
-         "нежил" in data[TYPE] and "комн" in full_address:
+    elif ("апарт" in address or \
+         "апарт" in type_ or \
+         "нежил" in type_ or \
+         "студ" in type_ or \
+         "нежил" in type_ and "комн" in type_ or \
+         "нежил" in type_ and "студ" in type_ or \
+         "нежил" in type_ and "комн" in address) and \
+         BOOL(lambda: float(floor) >= 1) and BOOL(lambda: float(area) < 600) and BOOL(lambda: float(area) > 20) and \
+         ("доли" not in address or "доля" not in address):
         #
         result[OBJECT_TYPE] = "апартамент"
         
-    elif "квартир" in data[TYPE]:
+    # elif BOOL(lambda:float(floor) < 0):
+    #     #
+    #     result[OBJECT_TYPE] = "машиноместо"
+    #
+    elif "квартир" in type_ or \
+        BOOL(lambda:float(floor) >= 1) and \
+        BOOL(lambda:float(area) < 1200) and BOOL(lambda:float(area) > 31) and \
+        "н" not in object_number and \
+        ("доли" not in address or "доля" not in address) and \
+        "комнат" in address:
         #
         result[OBJECT_TYPE] = "квартира"
-        
-    elif "машин" in full_address or \
-         "машин" in data[TYPE] or \
-         "стоян" in data[TYPE] or \
-         "подвал" in data[FLOOR] or \
-         "уров" in data[FLOOR]:
-        #
+
+    elif ("машин" in address or \
+         "машин" in type_ or \
+         "стоян" in address or \
+         "стоян" in type_ or \
+         ("доли" in address or "доля" in address) or \
+         "подвал" in floor or \
+         "уров" in floor or \
+         "нежил" in type_) and \
+         (BOOL(lambda:float(area) > 1200) or (BOOL(lambda:float(area) <= 31) and BOOL(lambda:float(area) > 11))) and \
+         BOOL(lambda:float(floor) <= 8):
+         #
         result[OBJECT_TYPE] = "машиноместо"
-        
-    elif "нежил" in data[TYPE] and BOOL(lambda: float(data[FLOOR]) >= 4) or \
-         "нежил" in data[TYPE] and BOOL(lambda: float(data[FLOOR]) >= 2) and BOOL(lambda: float(area_value) < 70):
-        #
+    
+    # Old code by Oleg
+    # elif "нежил" in type_ and BOOL(lambda: float(floor) >= 4) or \
+    #      "нежил" in type_ and BOOL(lambda: float(floor) >= 2) and \
+    #      BOOL(lambda:float(area) > 11) and BOOL(lambda: float(area) < 70) and \
+    #      "стоян" not in type_ and "кладов" not in type_:
+    #     #
+    #     result[OBJECT_TYPE] = "апартамент"
+    elif "нежил" in type_ and \
+            BOOL(lambda:float(floor) >= 2) and \
+            BOOL(lambda:float(area) > 11) and \
+            BOOL(lambda:float(area) < 70) and \
+            ("доли" not in address or "доля" not in address):
+         #
         result[OBJECT_TYPE] = "апартамент"
 
-    elif "кладов" in data[TYPE] or \
-         BOOL(lambda: float(area_value) < 11):
+    elif "кладов" in type_ or \
+         BOOL(lambda: float(area) <= 11):
         #
         result[OBJECT_TYPE] = "кладовая"
         
-    elif "встроен" in full_address or \
-         "офис" in full_address or \
-         "встроен" in data[TYPE] or \
-         "нежил" in data[TYPE] and data[FLOOR] == "1" or \
-         "н" in data[OBJECT_NUMBER] and BOOL(lambda: float(data[FLOOR]) <= 3):
+    elif "встроен" in address or \
+         "офис" in address or \
+         "встроен" in type_ or \
+         "нежил" in type_ and floor == "1" or \
+         "н" in object_number and BOOL(lambda: float(floor) <= 3):
         #
         result[OBJECT_TYPE] = "нежилое"
         
-    elif not data[TYPE] and not full_address or \
-         not data[TYPE] and not area_value:
+    elif not type_ and not address or \
+         not type_ and not area:
         #
         result[OBJECT_TYPE] = "нд"
         
     else:
+        # if nothing matched
+        #pass
         result[OBJECT_TYPE] = CHECK_THIS
-        result[CHECK_THIS] = OBJECT_TYPE
+        # result[CHECK_THIS] = OBJECT_TYPE
+    
+    #debug(f"obejct number: {object_number}\nfloor: {floor}\narea: {area}\nadress: {address}\ntype_: {type_}")
+    # debug(result)
+    # debug()
+    
     return result
     
 
@@ -458,7 +517,7 @@ def parseAddress(data):
     # это регулярка состоит из трех частей:
     # первая, необязательная, которая сожержит в основном описания.
     # вторая, обязательная, содержит непосредственно упоминание объекта.
-    # третья, необязательная, работает аналогично первой и закрывает дыры, оставленные первыми тремя.
+    # третья, необязательная, работает аналогично первой и закрывает дыры, оставленные первыми двумя.
     # todo: упростить эту регулярку, переписав через оператор or
     tmp = re.compile("Объект долевого строительства[: ]*(.*?)[,;]").search(data)
     tmp = tmp and tmp.groups()[0].lower() or ""

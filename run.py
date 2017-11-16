@@ -402,8 +402,6 @@ def define_object_type(data):
     # В каком порядке мы заглядываем в адрес и тип?
     #
     
-    
-    
     if "ДОУ" in address:
         #
         result[OBJECT_TYPE] = "ДОУ"
@@ -554,10 +552,23 @@ def parseAddress(data):
     result[OBJECT_NUMBER] = tmp and wrap_data_like_value(tmp.groups()[0]) or ""
 
     # Area
-    re_area_type = "(?:проектная|\(?планируемая\)?|общая|примерная)"
-    re_area = "(\d{1,4}[,.]?\d{0,3}[,.]?\d{0,2})\s*кв[\. ]+м"
+    re_area_type = "(?:проектная|\(?планируемая\)?|общая|примерная)[\d]?"  # [\d]? is for typo
+    re_area = "(\d{0,4}[,.]?\d{0,3}[,.]?\d{1,2})\s*кв[\. ]+м"
     tmp = re.compile("{type}\s*площадь[: -]+{area}".format(area=re_area, type=re_area_type)).findall(data) or "no info"
-    result[AREA] = min(tmp) or ""
+    tmp = min(tmp) or ""
+    # typo: area = object_number
+    if tmp == result[OBJECT_NUMBER][2:-1]:
+        tmp = ""
+    # convert ,8 to 0,8
+    elif tmp.startswith(','):
+        tmp = '0' + tmp
+    # convert 2345 to 23,45 для квартира, апартамент, студия, [комнат], жилое
+    elif tmp.isdigit() and float(tmp) > 1500 and (
+    'квартир' in result[TYPE] or 'апарт' in result[TYPE] or
+    'студ' in result[TYPE] or 'комнат' in result[TYPE] or
+    'жилое' in result[TYPE]):
+        tmp = str(float(tmp) / 100).replace(".",",") # area separator is coma
+    result[AREA] = tmp or ""
     
     # Adress
     tmp = re.compile("местоположение[: ]+(.*?)[.;]*$").search(data)
@@ -676,7 +687,7 @@ def has_no_data(root):
 
 
 def process(input_file, csv_writer):
-    inputFile = input_file.file.read().decode().replace("\n", " ")
+    inputFile = input_file.file.read().decode().replace("\n\n\n", " ").replace("\n\n", " ").replace("\n", " ")
     filename = os.path.splitext(input_file.raw_filename)[0]
     
     parser = xml.etree.ElementTree.XMLParser(encoding="UTF-8")

@@ -201,6 +201,8 @@ CORPUS_TYPOS = [
     'дом №',
     'доме №',
     'дома №',
+    'блое',
+    'КОРП.',
     ]
 
 DOGOVOR_UCHASTIA_TYPO = [
@@ -386,7 +388,8 @@ def simplify_floor(floor):
 def define_object_type(data):
     result = dict()
     
-    floor = data[FLOOR] or ""
+    #floor = data[FLOOR] or ""
+    floor = simplify_floor(data[FLOOR])
     #floor = get_floor_type_helper(data[FLOOR]) or "" # добавить классификатор сюда и заменить в теле алгоритма
     object_number = data[OBJECT_NUMBER].lower() or ""
     area = data[AREA].replace(",", ".")
@@ -404,6 +407,14 @@ def define_object_type(data):
     if "ДОУ" in address:
         #
         result[OBJECT_TYPE] = "ДОУ"
+    
+    elif "встроен" in address or \
+         "офис" in address or \
+         "встроен" in type_ or \
+        ("нежил" in type_ and floor == "1") or \
+         "н" in object_number and BOOL(lambda: float(floor) <= 3):
+        #
+        result[OBJECT_TYPE] = "нежилое"
         
     elif ("апарт" in address or \
          "апарт" in type_ or \
@@ -423,19 +434,23 @@ def define_object_type(data):
     #
     elif "квартир" in type_ or \
         BOOL(lambda:float(floor) >= 1) and \
-        BOOL(lambda:float(area) < 1200) and BOOL(lambda:float(area) > 31) and \
+        BOOL(lambda:float(area) < 1200) and BOOL(lambda:float(area) > 16) and \
         "н" not in object_number and \
         ("доли" not in address or "доля" not in address) and \
         "комнат" in address:
         #
         result[OBJECT_TYPE] = "квартира"
 
-    elif ("машин" in address or \
+    elif (
+         "машин" in address or \
          "машин" in type_ or \
+         "стоянк" in address or \
+         "стоянк" in type_ or \
          "стоян" in address or \
          "стоян" in type_ or \
          ("доли" in address or "доля" in address) or \
          "подвал" in floor or \
+         "цокол" in floor or \
          "уров" in floor or \
          "нежил" in type_) and \
          (BOOL(lambda:float(area) > 1200) or (BOOL(lambda:float(area) <= 31) and BOOL(lambda:float(area) > 11))) and \
@@ -463,13 +478,7 @@ def define_object_type(data):
         #
         result[OBJECT_TYPE] = "кладовая"
         
-    elif "встроен" in address or \
-         "офис" in address or \
-         "встроен" in type_ or \
-         "нежил" in type_ and floor == "1" or \
-         "н" in object_number and BOOL(lambda: float(floor) <= 3):
-        #
-        result[OBJECT_TYPE] = "нежилое"
+    
         
     elif not type_ and not address or \
          not type_ and not area:
@@ -482,7 +491,7 @@ def define_object_type(data):
         result[OBJECT_TYPE] = CHECK_THIS
         # result[CHECK_THIS] = OBJECT_TYPE
     
-    #debug(f"obejct number: {object_number}\nfloor: {floor}\narea: {area}\nadress: {address}\ntype_: {type_}")
+    # debug(f"obejct number: {object_number}\nfloor: {floor}\narea: {area}\nadress: {address}\ntype_: {type_}")
     # debug(result)
     # debug()
     
@@ -531,7 +540,8 @@ def parseAddress(data):
     result[TYPE] = tmp and tmp.groups()[0].lower() or ""
     
     # Floor
-    # todo: standartize all negative values
+    # todo: все негативные значения привести к виду -5.5
+    # todo: все буквенные значения привести к единому стандарту (заменять "цокольное" на "цокольный")
     re_floor = "[на урвьеотмк.]*(\-\d[,.]?\d+|\-?\d+)[-оимый]*"
     tmp = re.compile("(цоколь\w*|подвал\w*|подзем\w*)").search(data)  # Anton
     tmp = tmp or re.compile("{floor}\s*этаж[е,.;]*".format(floor=re_floor)).search(data)  # Anton
@@ -555,11 +565,14 @@ def parseAddress(data):
     # tmp = tmp or re.compile("уч. (.*?),кад.").search(data)
     result[ADRESS] = tmp and tmp.groups()[0] or ""
     
+    # todo: разделить корпус и блок
+    # todo: если корупса/блока нет, то берем дом
     # Corpus
-    tmp = re.compile("[^\d][;.,][ ]{0,3}([\d.]+)[- ]*корпус[;,.]?[\s]+[^\d]").search(data)  # Anton
-    tmp = tmp or re.compile(" корпус{eq}й?([\d\./\-]+){sep}".format_map(FMTS)).search(data)  # Anton
-    tmp = tmp or re.compile("[\s\(]?блоки?{eq}([\d\.]+){sep}".format_map(FMTS)).search(data)  # Anton
-    tmp = tmp or re.compile(", (\d+?)[-й]* блок{sep}".format_map(FMTS)).search(data)  # Oleg
+    corpus_data = data.lower()
+    tmp = re.compile("[^\d][;.,][ ]{0,3}([\d.]+)[- ]*корпус[;,.]?[\s]+[^\d]").search(corpus_data)  # Anton
+    tmp = tmp or re.compile("[, )\d]корпус{eq}й?([а-я\d\./\-]+){sep}".format_map(FMTS)).search(corpus_data)  # Anton
+    tmp = tmp or re.compile("[\s\(]?блоки?{eq}([\d\.]+){sep}".format_map(FMTS)).search(corpus_data)  # Anton
+    tmp = tmp or re.compile(", (\d+?)[-й]* блок{sep}".format_map(FMTS)).search(corpus_data)  # Oleg
     tmp = tmp and tmp.groups()[0] or ""
     result[CORPUS] = wrap_data_like_value(tmp)
 

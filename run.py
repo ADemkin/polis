@@ -557,11 +557,12 @@ def parseAddress(data):
     tmp = re.compile("{type}\s*площадь[: -]+{area}".format(area=re_area, type=re_area_type)).findall(data) or "no info"
     tmp = min(tmp) or ""
     # typo: area = object_number
+    # object number is wrapped like this: ="{number}"
     if tmp == result[OBJECT_NUMBER][2:-1]:
         tmp = ""
     # convert ,8 to 0,8
-    elif tmp.startswith(','):
-        tmp = '0' + tmp
+    elif tmp.startswith(',') or tmp.startswith('.'):
+        tmp = f"0{tmp}"
     # convert 2345 to 23,45 для квартира, апартамент, студия, [комнат], жилое
     elif tmp.isdigit() and float(tmp) > 1500 and (
     'квартир' in result[TYPE] or 'апарт' in result[TYPE] or

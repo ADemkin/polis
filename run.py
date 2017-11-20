@@ -300,7 +300,6 @@ def replaceTyposInDduDesc(data):
         data = data.replace(to_replace, "Соглашение об уступке ")
     for to_replace in DOGOVOR_UCHASTIA_TYPO:
         data = data.replace(to_replace, "Договор участия в долевом строительстве ")
-    #data = data.replace("Договор oт", "Договор от") # o is latin, lol
     return data
 
 
@@ -320,10 +319,10 @@ def extractDduDocDesc(desc):
     
     # parse ddu date
     # search = re.compile("Договор участия в долевом строительстве[^;,]* от ("+DATE_REGEXP+")").search(desc)  # Oleg
-    search = re.compile("Договор участия в долевом строительстве[^;]* от ("+DATE_REGEXP+")").search(desc)  # Anton
+    search = re.compile("Договор участия в долевом строительстве[^;]* от ("+DATE_REGEXP+")").search(desc)
     search = search or re.compile("Договор.* долевого.* участия от ("+DATE_REGEXP+")").search(desc)
-    search = search or re.compile("Договор участия.* от ("+DATE_REGEXP+")").search(desc)  # Anton
-    search = search or re.compile("Договор от ("+DATE_REGEXP+")").search(desc)  # Anton
+    search = search or re.compile("Договор участия.* от ("+DATE_REGEXP+")").search(desc)
+    search = search or re.compile("Договор от ("+DATE_REGEXP+")").search(desc)
     search = search or re.compile("строительстве .*многоквартирного[^;,]* от ("+DATE_REGEXP+")").search(desc)
     search = search or re.compile("строительстве .* по адресу.* от ("+DATE_REGEXP+")").search(desc)
     search = search or re.compile("участия в долевом строительстве[^;,]* от ("+DATE_REGEXP+")").search(desc)
@@ -334,11 +333,11 @@ def extractDduDocDesc(desc):
     # parse ddu number
     # todo: create additional complex regexp for ddu number (for space typos and so on)
     search = re.compile("Договор участия в долевом строительстве.* от[^№]*(№.*?)[;, ]").search(desc)
-    search = search or re.compile("Договор участия в долевом строительстве.*(№.*?) от[^№]*[:, ]*").search(desc)  # Anton
-    search = search or re.compile("Договор участия.*(№.*?).* от[^№]*[:, ]*").search(desc)  # Anton
+    search = search or re.compile("Договор участия в долевом строительстве.*(№.*?) от[^№]*[:, ]*").search(desc)
+    search = search or re.compile("Договор участия.*(№.*?).* от[^№]*[:, ]*").search(desc)
     search = search or re.compile("Договор [^№]*(№.*?) .*участия").search(desc)
-    search = search or re.compile("Договор от[^№]*(№.{2,25}?)[:, ]*").search(desc)  # Anton
-    search = search or re.compile("Дополнительное.* соглашение[^;,]* от[^№]*(№.{1,25}?)[:, ]*").search(desc)  # Anton
+    search = search or re.compile("Договор от[^№]*(№.{2,25}?)[:, ]*").search(desc)
+    search = search or re.compile("Дополнительное.* соглашение[^;,]* от[^№]*(№.{1,25}?)[:, ]*").search(desc)
     search = search or re.compile("строительстве.*от[^№]*(№.*?)[;, ]").search(desc)
     search = search or re.compile("Соглашение об уступке[^;,]* от[^№]*(№.*?)[;, ]").search(desc)
     result[DDU_DOC_DESC_NUMBER] = search and search.groups()[0] or ""
@@ -503,12 +502,9 @@ def wrap_data_like_value(s):
 
 #разделитель
 FMTS = dict(
-    #section="[\-\d./]+", # Oleg
-    section="[\-\d./]*",  # Anton
-    # sep="[;,)( ]+",  # Oleg
-    sep="[;,)( ]+",  # Anton
-    # eq="[: №-]*"  # Oleg
-    eq="[.: №К\-]*"  # Anton
+    section="[\-\d./]*",
+    sep="[;,)( ]+",
+    eq="[.: №К\-]*"
 )
 
 
@@ -531,19 +527,16 @@ def parseAddress(data):
     re_obj_pre = "((нежил|жил|.*комнат|офис|встр|\d.?к|\d|техн|служ).{0,30})"
     re_obj_body = "(квартира|помещение|апартамент|.*комнатная|.{0,30}место|студия|комнаты?)"
     re_obj_suf = "(.{0,30}(кладовая|стоянка|место|студия|нат[аы]|н[ои]е|квартира|апартаменты?))"
-
-    tmp = re.compile("({pre}?{body}{suff}?\)?)".format(pre=re_obj_pre,
-                                                  body=re_obj_body,
-                                                  suff=re_obj_suf)).search(tmp)
+    tmp = re.compile(f"({re_obj_pre}?{re_obj_body}{re_obj_suf}?\)?)").search(tmp)
     result[TYPE] = tmp and tmp.groups()[0].lower() or ""
     
     # Floor
     # todo: все негативные значения привести к виду -5.5
     # todo: все буквенные значения привести к единому стандарту (заменять "цокольное" на "цокольный")
     re_floor = "[на урвьеотмк.]*(\-\d[,.]?\d+|\-?\d+)[-оимый]*"
-    tmp = re.compile("(цоколь\w*|подвал\w*|подзем\w*)").search(data)  # Anton
-    tmp = tmp or re.compile("{floor}\s*этаж[е,.;]*".format(floor=re_floor)).search(data)  # Anton
-    tmp = tmp or re.compile("номер этажа[: ]*{floor}".format(floor=re_floor)).search(data)  # Anton
+    tmp = re.compile("(цоколь\w*|подвал\w*|подзем\w*)").search(data)
+    tmp = tmp or re.compile("{floor}\s*этаж[е,.;]*".format(floor=re_floor)).search(data)
+    tmp = tmp or re.compile("номер этажа[: ]*{floor}".format(floor=re_floor)).search(data)
     result[FLOOR] = tmp and tmp.groups()[0] or ""  # Oleg
     
     
@@ -554,9 +547,9 @@ def parseAddress(data):
     # Area
     re_area_type = "(?:проектная|\(?планируемая\)?|общая|примерная)[\d]?"  # [\d]? is for typo
     re_area = "(\d{0,4}[,.]?\d{0,3}[,.]?\d{1,2})\s*кв[\. ]+м"
-    tmp = re.compile("{type}\s*площадь[: -]+{area}".format(area=re_area, type=re_area_type)).findall(data) or "no info"
-    tmp = min(tmp) or ""
-    # typo: area = object_number
+    tmp = re.compile(f"{re_area_type}\s*площадь[: -]+{re_area}").findall(data) or "no info"
+    tmp = min(tmp)
+    # typo: if area = object_number
     # object number is wrapped like this: ="{number}"
     if tmp == result[OBJECT_NUMBER][2:-1]:
         tmp = ""
@@ -581,9 +574,9 @@ def parseAddress(data):
     # todo: если корупса/блока нет, то берем дом
     # Corpus
     corpus_data = data.lower()
-    tmp = re.compile("[^\d][;.,][ ]{0,3}([\d.]+)[- ]*корпус[;,.]?[\s]+[^\d]").search(corpus_data)  # Anton
-    tmp = tmp or re.compile("[, )\d]корпус{eq}й?([а-я\d\./\-]+){sep}".format_map(FMTS)).search(corpus_data)  # Anton
-    tmp = tmp or re.compile("[\s\(]?блоки?{eq}([\d\.]+){sep}".format_map(FMTS)).search(corpus_data)  # Anton
+    tmp = re.compile("[^\d][;.,][ ]{0,3}([\d.]+)[- ]*корпус[;,.]?[\s]+[^\d]").search(corpus_data)
+    tmp = tmp or re.compile("[, )\d]корпус{eq}й?([а-я\d\./\-]+){sep}".format_map(FMTS)).search(corpus_data)
+    tmp = tmp or re.compile("[\s\(]?блоки?{eq}([\d\.]+){sep}".format_map(FMTS)).search(corpus_data)
     tmp = tmp or re.compile(", (\d+?)[-й]* блок{sep}".format_map(FMTS)).search(corpus_data)  # Oleg
     tmp = tmp and tmp.groups()[0] or ""
     result[CORPUS] = wrap_data_like_value(tmp)
@@ -614,7 +607,6 @@ def parseAddress(data):
     rooms_re = re.compile("количество комнат{eq}(.+?){sep}".format_map(FMTS)).search(data)
     rooms_re = rooms_re or re.compile("тип{eq}(.+?){sep}".format_map(FMTS)).search(data)
     rooms_re = rooms_re or re.compile(", *(\d+?) *ком\.").search(data)
-    # debug(rooms_re)
     if "студ" in data or "студ" in result[TYPE]:
         result[ROOMS] = "студия"
     elif "1" in result[TYPE] or "одно" in result[TYPE]:
@@ -688,11 +680,11 @@ def has_no_data(root):
 
 
 def process(input_file, csv_writer):
-    inputFile = input_file.file.read().decode().replace("\n\n\n", " ").replace("\n\n", " ").replace("\n", " ")
+    inputFile = input_file.file.read().decode().replace("\n", " ")
     filename = os.path.splitext(input_file.raw_filename)[0]
     
     parser = xml.etree.ElementTree.XMLParser(encoding="UTF-8")
-    root = xml.etree.ElementTree.fromstring(inputFile, parser)#.getroot()
+    root = xml.etree.ElementTree.fromstring(inputFile, parser)
     
     if has_no_data(root):
         debug('{} has no data to parse'.format(filename))
@@ -729,7 +721,6 @@ def process(input_file, csv_writer):
 
         data = None
         if len(elem.find('ShareHolding')) == 2:
-            # res['regNum'] = elem.find('ShareHolding').findtext('ShareObjects')
             data = " ".join(elem.find('ShareHolding')[1].itertext())
         elif len(elem.find('ShareHolding').find('ShareObjects')) == 0:
             data = elem.find('ShareHolding').findtext('ShareObjects')

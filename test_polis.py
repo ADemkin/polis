@@ -1,7 +1,6 @@
 import unittest
 import run as impo
 
-# python3 -m unittest test_impo
 
 class TestStringMethods(unittest.TestCase):
 
@@ -508,7 +507,7 @@ class TestStringMethods(unittest.TestCase):
 
         s = "Объект долевого строительства: Нежилое помещение (Автостоянка), номер этажа: 5, номер объекта: 5-13(735), проектная (планируемая) площадь: 1902 кв.м, местоположение: Санкт-Петербург, Василеостровский район, Невская губа, уч.28, (западнее Васильевского острова, квартал 25), 3 этап, строительные оси м/м: 12-13; К-И, примерная площадь м/м: 12 кв. м., 1/59 доли в праве собственности"
         tmp = impo.parseAddress(s)
-        res = impo.define_object_type(tmp)
+        res = impo.get_object_type(tmp)
         self.assertEqual(res[impo.OBJECT_TYPE], 'машиноместо')
 
 
@@ -716,7 +715,6 @@ class TestStringMethods(unittest.TestCase):
         res = impo.parseAddress(s)
         self.assertEqual(res[impo.CORPUS], '="6"')
         
-        
 
     def test_podval_anton_october_2017(self):
         # подвал и цокольный этаж
@@ -825,7 +823,6 @@ class TestStringMethods(unittest.TestCase):
         self.assertEqual(res[impo.AREA], '12955,24')
         
         
-        
     def test_area_floor_anton_october_2017(self):
         s = "Объект долевого строительства: 1-комнатная квартира, номер этажа: 6, номер объекта: 71, проектная (планируемая) площадь: 31,75 кв.м, проектная площадь балконов и террас, ( нониженным коэффициентом 0,3) кв.м. 1,20 кв.м., наличие балкона/лоджии - балкон; местоположение: Московская область, г.Красноармейск, ул.Новая Жизнь, д.8;"
         res = impo.parseAddress(s)
@@ -920,6 +917,7 @@ class TestStringMethods(unittest.TestCase):
         s = "Объект долевого строительства: Нежилое помещение, номер этажа: 2, номер объекта: 9.18н, проектная (планируемая) площадь: 32,56 кв.м, местоположение: г.Санкт-Петербург, проспект КИМа, д.19, лит.Д,тип- встроенное помещение, в осях П-М/14-15;"
         res = impo.parseAddress(s)
         self.assertEqual(res[impo.TYPE], "нежилое помещение")
+
 
     def test_ddu_number_and_date_anton_october_2017(self):
         s = "Договор участия в долевом строительстве №Д-ОС-02/15-3/1-156,157,158,159,160,161,162,163 oт 25.02.2015"
@@ -1086,7 +1084,6 @@ class TestStringMethods(unittest.TestCase):
         self.assertEqual(res[impo.DDU_DOC_DESC_DATE], "01.09.2016")
         
 
-
     def test_type_dogovor_anton_october_2017(self):
         s = "Договор уступки прав (цессии)  по договору участия в долевом ст"
         res = impo.extractDduDocDesc(s)
@@ -1109,7 +1106,6 @@ class TestStringMethods(unittest.TestCase):
         s = "Договор участия в долевом строительстве oт 23.12.2016 №23/12/2016-БХ-Б-268 АБЫРВАЛГ"
         res = impo.extractDduDocDesc(s)
         self.assertEqual(res[impo.DOGOVOR_TYPE], "ДДУ")
-        
         
         
     def test_simplify_floor(self):
@@ -1148,8 +1144,47 @@ class TestStringMethods(unittest.TestCase):
 
         s = ""
         r = impo.simplify_floor(s)
-        self.assertEqual(r, "")
+        self.assertEqual(r, None)
 
+        s = "0"
+        r = impo.simplify_floor(s)
+        self.assertEqual(r, 0)
+        
+        s = None
+        r = impo.simplify_floor(s)
+        self.assertEqual(r, None)
+        
+        s = "5"
+        r = impo.simplify_floor(s)
+        #print(f" value is {r} and type is {type(r)}")
+        self.assertTrue(r and 5 > 3)
+
+        s = "подвальный"
+        r = impo.simplify_floor(s)
+        #print((r and r < 10))
+        self.assertTrue(r and r < 0)
+        
+        s = "цокольный"
+        r = impo.simplify_floor(s)
+        # print(type(r))
+        self.assertTrue(r and r < 0)
+        
+        s = "15"
+        r = impo.simplify_floor(s)
+        self.assertTrue(r and r > 10)
+
+        s = "-5.500"
+        r = impo.simplify_floor(s)
+        self.assertTrue(r and r < 1)
+        
+        s= ""
+        r = impo.simplify_floor(s)
+        self.assertFalse(r and r < 1)
+        
+        s = "0"
+        r = impo.simplify_floor(s)
+        self.assertFalse(r and r < 1)
+    
 
 if __name__ == '__main__':
     unittest.main()

@@ -374,7 +374,7 @@ def simplify_floor(floor):
     else:
         return int(floor)
 
-# главный классификатор типа помещения
+
 # Object Type
 def get_object_type(data, object_type =""):
     result = dict()
@@ -457,8 +457,7 @@ def get_object_type(data, object_type =""):
                     result_type = "апартамент"
                 else:
                     result_type = "ПРОВЕРИТЬ!"
-                
-            
+                    
         elif area and area <= 16:
             result_type = "машиноместо"
         
@@ -493,6 +492,7 @@ def get_object_type(data, object_type =""):
             result_type = "апартамент"
         else:
             result_type = "ПРОВЕРИТЬ!"
+            
     else:
         if area and area <= 31:
             result_type = "машиноместо"
@@ -504,11 +504,7 @@ def get_object_type(data, object_type =""):
         else:
             result_type = "ПРОВЕРИТЬ!"
             
-    
     result[OBJECT_TYPE] = result_type
-
-    
-    
     return result
 
 # old one:

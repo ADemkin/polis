@@ -1,8 +1,9 @@
 # stuff for current project
-
+cadastral_data.json
+test_current.py
+/tasks
 /archive
 /xml
-/xml 1
 /errors
 /tools
 
@@ -18,3 +19,4 @@ ENV/
 .idea/
 archive/
 xml/
+__pycache__/

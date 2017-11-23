@@ -1,6 +1,10 @@
 from openpyxl import load_workbook
 import json
 
+LOCAL = 'cadastral_data.json'
+DEPLOY = '/var/tmp/cadastral_data.json'
+
+data_file = DEPLOY
 
 def load_xlsx_data(xlsx_file):
     xls_data = load_workbook(xlsx_file)
@@ -29,12 +33,12 @@ def load_xlsx_data(xlsx_file):
     return json.dumps(all_data, indent=1, ensure_ascii=False)
 
 
-def store_json_data(json_data, config_file='cadastral_data.json'):
+def store_json_data(json_data, config_file=data_file):
     with open(config_file, 'wb') as file:
         file.write(json_data.encode())
 
 
-def get_data_by_cadastral_number(cadastal_number, config_file='cadastral_data.json'):
+def get_data_by_cadastral_number(cadastal_number, config_file=data_file):
     '''
     returns dict with all types for given cadastral number
     '''

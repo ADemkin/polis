@@ -9,6 +9,8 @@ import traceback
 from bottle import route, run, template, post, request, HTTPResponse, static_file, redirect
 from io import StringIO
 
+import cadastral_data as cd
+
 # scp ~/impo.py root@138.197.223.128:/var/tmp/impo.py
 
 ROOT = '/var/tmp/polis/static/'
@@ -16,7 +18,7 @@ STATIC = 'var/tmp/static/'
 LOCAL = 'static/'
 
 # VARIABLE / table name # old name (same name in xml)
-# id should be lowercase, this is ms excell bug
+# id should be lowercase, this is ms excel bug
 ID_DDU = 'id'  # 'ID_DDU',
 DDU_DOC_DESC_DATE = 'Дата ДДУ'  # 'DduDocDesc_date',
 DDU_DOC_DESC_NUMBER = '№ ДДУ'  # 'DduDocDesc_number'
@@ -40,7 +42,7 @@ LOAN_DURATION = 'Срок залога'  # 'loanDuration'
 LOAN_NAME = 'Тип залога'  # 'loanName'
 LOAN_NUMBER = '№ залога'  # 'loanNumber'
 LOAN_OWNER_NAME = 'Банк'  # 'loanOwnerName' # Переделываем в Банк, сейчас здесь ФИО дольщика
-NUM_UCHASTOK = '№ ЗУ'  # 'Num_Uchastok',
+NUM_UCHASTOK = '№ ЗУ'  # 'Num_Uchastok', Кадарстровый номер
 WHOLESALE = 'Кол-во купленных лотов'  # 'wholesale',
 DDU_DESC = 'Название ДДУ' # 'DduDocDesc
 FULL_ADDRESS = 'Объект и адрес' # full_address
@@ -48,7 +50,7 @@ CHECK_THIS = "проверить!" # check!
 
 SOURCE_FILE = 'Объект'
 
-PROJECT = 'Проект'
+PROJECT_NAME = 'Проект'
 GLORAX_COMPETITOR = 'Конкурент проекта Glorax'
 
 
@@ -56,7 +58,7 @@ GLORAX_COMPETITOR = 'Конкурент проекта Glorax'
 ALL_KEYS = [
     ID_DDU,
     NUM_UCHASTOK,
-    PROJECT,
+    PROJECT_NAME,
     SOURCE_FILE,
     GLORAX_COMPETITOR,
     DDU_DESC,
@@ -364,135 +366,261 @@ def extractDduDocDesc(desc):
     return result
 
 
-# #TODO: check other fields before trimming area- it leads to bugs!
-# def trim_area(value):
-#     area = value.replace(",", ".")
-#     if BOOL(lambda: float(area) > 1000):
-#         return str(float(area) / 100.0).replace(".", ",")
-#     else:
-#         return value
-
-
 def simplify_floor(floor):
-    if floor == "":
-        return floor
+    if floor == "" or floor == None:
+        return None
     elif not floor.isdigit():
         return -1
     else:
         return int(floor)
-    
 
 # главный классификатор типа помещения
 # Object Type
-def define_object_type(data):
+def get_object_type(data, object_type =""):
     result = dict()
-    
-    #floor = data[FLOOR] or ""
     floor = simplify_floor(data[FLOOR])
-    #floor = get_floor_type_helper(data[FLOOR]) or "" # добавить классификатор сюда и заменить в теле алгоритма
     object_number = data[OBJECT_NUMBER].lower() or ""
-    area = data[AREA].replace(",", ".")
-    address = data[FULL_ADDRESS].lower()
-    type_ = data[TYPE].lower()
-    
-    
-    # сначала проверяем самые очевидные: ДОУ, стоянка, гараж\гск, кадовка. Исключаем доли. Дальше смотрим по этажу и
-    # площади. Дальше заглядываем в сами названия.
-    # В каком порядке мы заглядываем в адрес и тип?
-    #
-    
-    if "ДОУ" in address:
-        #
-        result[OBJECT_TYPE] = "ДОУ"
-    
-    elif "встроен" in address or \
-         "офис" in address or \
-         "встроен" in type_ or \
-        ("нежил" in type_ and floor == "1") or \
-         "н" in object_number and BOOL(lambda: float(floor) <= 3):
-        #
-        result[OBJECT_TYPE] = "нежилое"
-        
-    elif ("апарт" in address or \
-         "апарт" in type_ or \
-         "нежил" in type_ or \
-         "студ" in type_ or \
-         "нежил" in type_ and "комн" in type_ or \
-         "нежил" in type_ and "студ" in type_ or \
-         "нежил" in type_ and "комн" in address) and \
-         BOOL(lambda: float(floor) >= 1) and BOOL(lambda: float(area) < 600) and BOOL(lambda: float(area) > 20) and \
-         ("доли" not in address or "доля" not in address):
-        #
-        result[OBJECT_TYPE] = "апартамент"
-        
-    # elif BOOL(lambda:float(floor) < 0):
-    #     #
-    #     result[OBJECT_TYPE] = "машиноместо"
-    #
-    elif "квартир" in type_ or \
-        BOOL(lambda:float(floor) >= 1) and \
-        BOOL(lambda:float(area) < 1200) and BOOL(lambda:float(area) > 16) and \
-        "н" not in object_number and \
-        ("доли" not in address or "доля" not in address) and \
-        "комнат" in address:
-        #
-        result[OBJECT_TYPE] = "квартира"
+    area = float(data[AREA].replace(",", ".")) or None
+    object_and_adress = data[FULL_ADDRESS].lower()
+    initial_type = data[TYPE].lower() or None
+    possible_object_types = object_type or []
+    # тип исх = initial_type
+    # объект и адрес = object_and_adress
+    result_type = None
 
-    elif (
-         "машин" in address or \
-         "машин" in type_ or \
-         "стоянк" in address or \
-         "стоянк" in type_ or \
-         "стоян" in address or \
-         "стоян" in type_ or \
-         ("доли" in address or "доля" in address) or \
-         "подвал" in floor or \
-         "цокол" in floor or \
-         "уров" in floor or \
-         "нежил" in type_) and \
-         (BOOL(lambda:float(area) > 1200) or (BOOL(lambda:float(area) <= 31) and BOOL(lambda:float(area) > 11))) and \
-         BOOL(lambda:float(floor) <= 8):
-         #
-        result[OBJECT_TYPE] = "машиноместо"
-    
-    # Old code by Oleg
-    # elif "нежил" in type_ and BOOL(lambda: float(floor) >= 4) or \
-    #      "нежил" in type_ and BOOL(lambda: float(floor) >= 2) and \
-    #      BOOL(lambda:float(area) > 11) and BOOL(lambda: float(area) < 70) and \
-    #      "стоян" not in type_ and "кладов" not in type_:
-    #     #
-    #     result[OBJECT_TYPE] = "апартамент"
-    elif "нежил" in type_ and \
-            BOOL(lambda:float(floor) >= 2) and \
-            BOOL(lambda:float(area) > 11) and \
-            BOOL(lambda:float(area) < 70) and \
-            ("доли" not in address or "доля" not in address):
-         #
-        result[OBJECT_TYPE] = "апартамент"
-
-    elif "кладов" in type_ or \
-         BOOL(lambda: float(area) <= 11):
-        #
-        result[OBJECT_TYPE] = "кладовая"
-        
-    
-        
-    elif not type_ and not address or \
-         not type_ and not area:
-        #
-        result[OBJECT_TYPE] = "нд"
-        
-    else:
-        # if nothing matched
-        #pass
-        result[OBJECT_TYPE] = CHECK_THIS
-        # result[CHECK_THIS] = OBJECT_TYPE
-    
-    # debug(f"obejct number: {object_number}\nfloor: {floor}\narea: {area}\nadress: {address}\ntype_: {type_}")
+    # debug(f"obj_number: {object_number}\nfloor: {floor} type: {type(floor)}\narea: {area} type: {type(area)} "
+    #       f"\nadress: {object_and_adress}\npossible_types: {possible_object_types}\ninit_type: {initial_type}")
     # debug(result)
     # debug()
     
+    if initial_type == None and floor == None:
+        result_type = "нд"
+        
+    elif "доу" in object_and_adress:
+        result_type = "ДОУ"
+        
+    elif area and 8 <= area and area < 11:
+        if "машин" in initial_type or "стоян" in initial_type:
+            result_type = "машиноместо"
+        else:
+            result_type = "кладовая"
+    
+    elif area and 0 <= area and area < 8:
+        result_type = "кладовая"
+    
+    # todo: проверить в исходных данных наличие нулевых площадей
+    # нулевая площадь бывает только в крыму
+    elif area and area == 0:
+        if "машин" in initial_type or "стоян" in initial_type:
+            result_type = "машиноместо"
+        elif "кладов" in initial_type:
+            result_type = "кладовая"
+        else:
+            result_type = "ПРОВЕРИТЬ!"
+            
+    elif area and area > 1000:
+        result_type = "машиноместо"
+        
+    elif "кварт" in initial_type or "жилое" in initial_type and "нежилое" not in initial_type:
+        if 'кварт' in possible_object_types:
+            result_type = 'квартира'
+        else:
+            result_type = 'апартамент'
+        
+    elif "апарт" in initial_type:
+        if 'апарт' in possible_object_types:
+            result_type = 'апартамент'
+        else:
+            result_type = 'квартира'
+    
+    elif "комнат" in initial_type or "студ" in initial_type:
+        if 'апарт' in possible_object_types and 'жилое' in possible_object_types:
+            result_type = "квартира/апартамент"
+        elif 'жилое' in possible_object_types:
+            result_type = "квартира"
+        elif 'апарт' in possible_object_types:
+            result_type = "апартамент"
+        else:
+            result_type = "квартира/апартамент"
+
+        
+    
+    elif "встроен" in initial_type or "офис" in initial_type:
+        result_type = "нежилое"
+        
+    elif "машин" in initial_type or "стоян" in initial_type:
+        if area and area > 31:
+            if "-" in object_number:
+                result_type = "машиноместо"
+            else:
+                if 'апарт' in possible_object_types:
+                    result_type = "апартамент"
+                else:
+                    result_type = "ПРОВЕРИТЬ!"
+                
+            
+        elif area and area <= 16:
+            result_type = "машиноместо"
+        
+        elif floor and floor < 0 or "подвал" in initial_type or "подзем" in initial_type or "цокол" in initial_type:
+            result_type = "машиноместо"
+        else:
+            if 'апарт' in possible_object_types:
+                result_type = 'апартаменты'
+            else:
+                result_type = 'машиноместо'
+            
+    elif "доля" in object_and_adress or "доли" in object_and_adress:
+        if area and area <= 31:
+            result_type = "машиноместо"
+        else:
+            result_type = "ПРОВЕРИТЬ!"
+    
+    elif floor and floor > 9 and 'апарт' in possible_object_types:
+        result_type = "апартамент"
+
+    elif 'апартн' not in possible_object_types and "магаз" in object_and_adress or "офис" in object_and_adress:
+        result_type = "нежилое"
+
+    elif 'апарт' in possible_object_types:
+        if "н" in object_number:
+            result_type = "нежилое"
+        elif area and area < 16:
+            result_type = "машиноместо"
+        elif floor and floor > 3:
+            result_type = "апартамент"
+        elif "апарт" in object_and_adress or "комнат" in object_and_adress or "студ" in object_and_adress:
+            result_type = "апартамент"
+        else:
+            result_type = "ПРОВЕРИТЬ!"
+    else:
+        if area and area <= 31:
+            result_type = "машиноместо"
+        if "нежил" in initial_type or "помещ" in initial_type:
+            if floor and floor <= 3:
+                result_type = "нежилое"
+            else:
+                result_type = "ПРОВЕРИТЬ!"
+        else:
+            result_type = "ПРОВЕРИТЬ!"
+            
+    
+    result[OBJECT_TYPE] = result_type
+
+    
+    
     return result
+
+# old one:
+# def define_object_type(data):
+#     result = dict()
+#
+#     #floor = data[FLOOR] or ""
+#     floor = simplify_floor(data[FLOOR])
+#     #floor = get_floor_type_helper(data[FLOOR]) or "" # добавить классификатор сюда и заменить в теле алгоритма
+#     object_number = data[OBJECT_NUMBER].lower() or ""
+#     area = data[AREA].replace(",", ".")
+#     address = data[FULL_ADDRESS].lower()
+#     type_ = data[TYPE].lower()
+#
+#
+#     # сначала проверяем самые очевидные: ДОУ, стоянка, гараж\гск, кадовка. Исключаем доли. Дальше смотрим по этажу и
+#     # площади. Дальше заглядываем в сами названия.
+#     # В каком порядке мы заглядываем в адрес и тип?
+#     #
+#
+#     if "ДОУ" in address:
+#         #
+#         result[OBJECT_TYPE] = "ДОУ"
+#
+#     elif "встроен" in address or \
+#          "офис" in address or \
+#          "встроен" in type_ or \
+#         ("нежил" in type_ and floor == "1") or \
+#          "н" in object_number and BOOL(lambda: float(floor) <= 3):
+#         #
+#         result[OBJECT_TYPE] = "нежилое"
+#
+#     elif ("апарт" in address or \
+#          "апарт" in type_ or \
+#          "нежил" in type_ or \
+#          "студ" in type_ or \
+#          "нежил" in type_ and "комн" in type_ or \
+#          "нежил" in type_ and "студ" in type_ or \
+#          "нежил" in type_ and "комн" in address) and \
+#          BOOL(lambda: float(floor) >= 1) and BOOL(lambda: float(area) < 600) and BOOL(lambda: float(area) > 20) and \
+#          ("доли" not in address or "доля" not in address):
+#         #
+#         result[OBJECT_TYPE] = "апартамент"
+#
+#     # elif BOOL(lambda:float(floor) < 0):
+#     #     #
+#     #     result[OBJECT_TYPE] = "машиноместо"
+#     #
+#     elif "квартир" in type_ or \
+#         BOOL(lambda:float(floor) >= 1) and \
+#         BOOL(lambda:float(area) < 1200) and BOOL(lambda:float(area) > 16) and \
+#         "н" not in object_number and \
+#         ("доли" not in address or "доля" not in address) and \
+#         "комнат" in address:
+#         #
+#         result[OBJECT_TYPE] = "квартира"
+#
+#     elif (
+#          "машин" in address or \
+#          "машин" in type_ or \
+#          "стоянк" in address or \
+#          "стоянк" in type_ or \
+#          "стоян" in address or \
+#          "стоян" in type_ or \
+#          ("доли" in address or "доля" in address) or \
+#          "подвал" in floor or \
+#          "цокол" in floor or \
+#          "уров" in floor or \
+#          "нежил" in type_) and \
+#          (BOOL(lambda:float(area) > 1200) or (BOOL(lambda:float(area) <= 31) and BOOL(lambda:float(area) > 11))) and \
+#          BOOL(lambda:float(floor) <= 8):
+#          #
+#         result[OBJECT_TYPE] = "машиноместо"
+#
+#     # Old code by Oleg
+#     # elif "нежил" in type_ and BOOL(lambda: float(floor) >= 4) or \
+#     #      "нежил" in type_ and BOOL(lambda: float(floor) >= 2) and \
+#     #      BOOL(lambda:float(area) > 11) and BOOL(lambda: float(area) < 70) and \
+#     #      "стоян" not in type_ and "кладов" not in type_:
+#     #     #
+#     #     result[OBJECT_TYPE] = "апартамент"
+#     elif "нежил" in type_ and \
+#             BOOL(lambda:float(floor) >= 2) and \
+#             BOOL(lambda:float(area) > 11) and \
+#             BOOL(lambda:float(area) < 70) and \
+#             ("доли" not in address or "доля" not in address):
+#          #
+#         result[OBJECT_TYPE] = "апартамент"
+#
+#     elif "кладов" in type_ or \
+#          BOOL(lambda: float(area) <= 11):
+#         #
+#         result[OBJECT_TYPE] = "кладовая"
+#
+#
+#
+#     elif not type_ and not address or \
+#          not type_ and not area:
+#         #
+#         result[OBJECT_TYPE] = "нд"
+#
+#     else:
+#         # if nothing matched
+#         #pass
+#         result[OBJECT_TYPE] = CHECK_THIS
+#         # result[CHECK_THIS] = OBJECT_TYPE
+#
+#     # debug(f"obejct number: {object_number}\nfloor: {floor}\narea: {area}\nadress: {address}\ntype_: {type_}")
+#     # debug(result)
+#     # debug()
+#
+#     return result
     
 
 def wrap_data_like_value(s):
@@ -560,7 +688,9 @@ def parseAddress(data):
     elif tmp.isdigit() and float(tmp) > 1500 and (
     'квартир' in result[TYPE] or 'апарт' in result[TYPE] or
     'студ' in result[TYPE] or 'комнат' in result[TYPE] or
-    'жилое' in result[TYPE]):
+    # todo: решить какую ветку оставить!
+    'жилое' in result[TYPE]) and 'нежилое' not in result[TYPE]:
+    # 'жилое' in result[TYPE]):
         tmp = str(float(tmp) / 100).replace(".",",") # area separator is coma
     result[AREA] = tmp or ""
     
@@ -700,6 +830,10 @@ def process(input_file, csv_writer):
     res1 = root.find('ReestrExtract').find('ExtractObjectRight')
     res2 = res1.find('ExtractObject').find('ObjectRight')
     elems = res2.findall('ShareHolding')
+    
+    object_custom_data = cd.get_data_by_cadastral_number(cadastralNumber)
+    # debug("###")
+    # debug(custom_data)
 
     ownersCount = dict()
     for elem in elems:
@@ -707,6 +841,7 @@ def process(input_file, csv_writer):
             ownersCount[owner] = ownersCount.get(owner, 0) + 1
 
     for elem in elems:
+        
         res = dict()
         res[NUM_UCHASTOK] = cadastralNumber
         res[ID_DDU] = elem.findtext('ID_DDU')
@@ -758,7 +893,12 @@ def process(input_file, csv_writer):
         res[SOURCE_FILE] = filename
         
         # set extra fields
-        res.update(define_object_type(res))
+        possible_object_types = object_custom_data['object_type']
+        res.update(get_object_type(res, possible_object_types))
+        
+        # write custom data from xlsx
+        res[GLORAX_COMPETITOR] = object_custom_data['project_glorax_competitor']
+        res[PROJECT_NAME] = object_custom_data['project_name']
         
         # output all fields as csv row
         csv_writer.writerow(res)
@@ -772,18 +912,29 @@ def do_upload():
         output = StringIO()
         csv_writer = csv.DictWriter(output, fieldnames=ALL_KEYS)
         csv_writer.writeheader()
+        
         uploads = request.files.getall('upload')
+        
         if len(uploads) == 0:
             return "<h4>nothing to upload</h4></br><a href='/'>go back</a>"
+        
+        files_to_process = []
+        
         for upload in uploads:
             # todo: make a workaround about raw_filename and encode it correctly (utf-8 i think)
             name, ext = os.path.splitext(upload.filename)
-            # if ext not in ('.xml', ".html", ".htm"):
-            #     return "<h2>Unable to upload a file: This file type is not supported.</h2>"
-            #q: why this is removed? do we use non-xml files?
-            process(upload, csv_writer)
-            debug("{} processed".format(upload.raw_filename))
-            #debug(upload.filename) #working, but cyrillic filenames is not working
+            if ext == '.xlsx':
+                cd.store_json_data(cd.load_xlsx_data(upload.file))
+                debug(f'created new config from {upload.raw_filename}\n')
+            else:
+                files_to_process.append(upload)
+                
+        for file in files_to_process:
+            process(file, csv_writer)
+            # debug("{} processed".format(upload.raw_filename))
+
+        
+        
         if len(uploads) > 1:
             name += "_multiple"
         result_csv = output.getvalue()

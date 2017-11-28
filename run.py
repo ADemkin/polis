@@ -366,23 +366,43 @@ def extractDduDocDesc(desc):
     return result
 
 
-def simplify_floor(floor):
+def get_floor_simplified(floor):
     if floor == "" or floor == None:
         return None
     elif not floor.isdigit():
         return -1
     else:
         return int(floor)
+    
+def get_area_converted(area):
+    area = area.replace(",", ".")
+    try:
+        result_area = float(area)
+    except ValueError:
+        result_area = None
+    finally:
+        return result_area
+
+def get_initial_type(type):
+    if type:
+        return type.lower()
+    else:
+        return ""
 
 
 # Object Type
 def get_object_type(data, object_type =""):
     result = dict()
-    floor = simplify_floor(data[FLOOR])
+    floor = get_floor_simplified(data[FLOOR])
     object_number = data[OBJECT_NUMBER].lower() or ""
-    area = float(data[AREA].replace(",", ".")) or None
+    
+    #debug(data[FULL_ADDRESS])
+    #debug(f"__{data[AREA]}__")
+    
+    #area = float(data[AREA].replace(",", ".")) or None
+    area = get_area_converted(data[AREA])
     object_and_adress = data[FULL_ADDRESS].lower()
-    initial_type = data[TYPE].lower() or None
+    initial_type = get_initial_type(data[TYPE])
     possible_object_types = object_type or []
     # тип исх = initial_type
     # объект и адрес = object_and_adress
@@ -392,6 +412,8 @@ def get_object_type(data, object_type =""):
     #       f"\nadress: {object_and_adress}\npossible_types: {possible_object_types}\ninit_type: {initial_type}")
     # debug(result)
     # debug()
+    
+    #debug(initial_type)
     
     if initial_type == None and floor == None:
         result_type = "нд"
@@ -661,7 +683,7 @@ def parseAddress(data):
     tmp = re.compile("(цоколь\w*|подвал\w*|подзем\w*)").search(data)
     tmp = tmp or re.compile("{floor}\s*этаж[е,.;]*".format(floor=re_floor)).search(data)
     tmp = tmp or re.compile("номер этажа[: ]*{floor}".format(floor=re_floor)).search(data)
-    result[FLOOR] = tmp and tmp.groups()[0] or ""  # Oleg
+    result[FLOOR] = tmp and tmp.groups()[0] or ""
     
     
     tmp = re.compile("строительный номер[: ]+(.+?),").search(data)
@@ -844,7 +866,7 @@ def process(input_file, csv_writer):
         if not res[ID_DDU]:
             continue
 
-        res[DDU_DESC] = (elem.findtext('DduDocDesc') or "").replace("\n", " ")
+        res[DDU_DESC] = (elem.findtext('DduDocDesc') or "")#.replace("\n", " ")
         res[DDU_DATE] = elem.findtext('DduDate')
         res[DDU_REG_NUMBER] = elem.findtext('DduRegNo')
         
@@ -921,16 +943,14 @@ def do_upload():
             name, ext = os.path.splitext(upload.filename)
             if ext == '.xlsx':
                 cd.store_json_data(cd.load_xlsx_data(upload.file))
-                debug(f'created new config from {upload.raw_filename}\n')
+                debug(f'created new config from {upload.raw_filename}')
             else:
                 files_to_process.append(upload)
                 
         for file in files_to_process:
             process(file, csv_writer)
-            # debug("{} processed".format(upload.raw_filename))
+            debug(f"file processed: {file.raw_filename}")
 
-        
-        
         if len(uploads) > 1:
             name += "_multiple"
         result_csv = output.getvalue()

@@ -1111,78 +1111,78 @@ class TestStringMethods(unittest.TestCase):
     def test_simplify_floor(self):
         
         s = "подвальный"
-        r = impo.simplify_floor(s)
+        r = impo.get_floor_simplified(s)
         self.assertEqual(r, -1)
         
         s = "на отметке -5"
-        r = impo.simplify_floor(s)
+        r = impo.get_floor_simplified(s)
         self.assertEqual(r, -1)
         
         s = "на уровне -5.5"
-        r = impo.simplify_floor(s)
+        r = impo.get_floor_simplified(s)
         self.assertEqual(r, -1)
         
         s = "-5,95"
-        r = impo.simplify_floor(s)
+        r = impo.get_floor_simplified(s)
         self.assertEqual(r, -1)
         
         s = "-5000"
-        r = impo.simplify_floor(s)
+        r = impo.get_floor_simplified(s)
         self.assertEqual(r, -1)
         
         s = "-5,500"
-        r = impo.simplify_floor(s)
+        r = impo.get_floor_simplified(s)
         self.assertEqual(r, -1)
         
         s = "18"
-        r = impo.simplify_floor(s)
+        r = impo.get_floor_simplified(s)
         self.assertEqual(r, 18)
         
         s = "-1"
-        r = impo.simplify_floor(s)
+        r = impo.get_floor_simplified(s)
         self.assertEqual(r, -1)
 
         s = ""
-        r = impo.simplify_floor(s)
+        r = impo.get_floor_simplified(s)
         self.assertEqual(r, None)
 
         s = "0"
-        r = impo.simplify_floor(s)
+        r = impo.get_floor_simplified(s)
         self.assertEqual(r, 0)
         
         s = None
-        r = impo.simplify_floor(s)
+        r = impo.get_floor_simplified(s)
         self.assertEqual(r, None)
         
         s = "5"
-        r = impo.simplify_floor(s)
+        r = impo.get_floor_simplified(s)
         #print(f" value is {r} and type is {type(r)}")
         self.assertTrue(r and 5 > 3)
 
         s = "подвальный"
-        r = impo.simplify_floor(s)
+        r = impo.get_floor_simplified(s)
         #print((r and r < 10))
         self.assertTrue(r and r < 0)
         
         s = "цокольный"
-        r = impo.simplify_floor(s)
+        r = impo.get_floor_simplified(s)
         # print(type(r))
         self.assertTrue(r and r < 0)
         
         s = "15"
-        r = impo.simplify_floor(s)
+        r = impo.get_floor_simplified(s)
         self.assertTrue(r and r > 10)
 
         s = "-5.500"
-        r = impo.simplify_floor(s)
+        r = impo.get_floor_simplified(s)
         self.assertTrue(r and r < 1)
         
         s= ""
-        r = impo.simplify_floor(s)
+        r = impo.get_floor_simplified(s)
         self.assertFalse(r and r < 1)
         
         s = "0"
-        r = impo.simplify_floor(s)
+        r = impo.get_floor_simplified(s)
         self.assertFalse(r and r < 1)
     
 

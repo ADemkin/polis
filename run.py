@@ -391,15 +391,10 @@ def get_initial_type(type):
 
 
 # Object Type
-def get_object_type(data, object_type =""):
+def get_object_type(data, object_type = ""):
     result = dict()
     floor = get_floor_simplified(data[FLOOR])
     object_number = data[OBJECT_NUMBER].lower() or ""
-    
-    #debug(data[FULL_ADDRESS])
-    #debug(f"__{data[AREA]}__")
-    
-    #area = float(data[AREA].replace(",", ".")) or None
     area = get_area_converted(data[AREA])
     object_and_adress = data[FULL_ADDRESS].lower()
     initial_type = get_initial_type(data[TYPE])
@@ -408,12 +403,6 @@ def get_object_type(data, object_type =""):
     # объект и адрес = object_and_adress
     result_type = None
 
-    # debug(f"obj_number: {object_number}\nfloor: {floor} type: {type(floor)}\narea: {area} type: {type(area)} "
-    #       f"\nadress: {object_and_adress}\npossible_types: {possible_object_types}\ninit_type: {initial_type}")
-    # debug(result)
-    # debug()
-    
-    #debug(initial_type)
     
     if initial_type == None and floor == None:
         result_type = "нд"
@@ -444,7 +433,7 @@ def get_object_type(data, object_type =""):
         result_type = "машиноместо"
         
     elif "кварт" in initial_type or "жилое" in initial_type and "нежилое" not in initial_type:
-        if 'кварт' in possible_object_types:
+        if 'жилое' in possible_object_types:
             result_type = 'квартира'
         else:
             result_type = 'апартамент'
@@ -465,8 +454,6 @@ def get_object_type(data, object_type =""):
         else:
             result_type = "квартира/апартамент"
 
-        
-    
     elif "встроен" in initial_type or "офис" in initial_type:
         result_type = "нежилое"
         
@@ -527,6 +514,7 @@ def get_object_type(data, object_type =""):
             result_type = "ПРОВЕРИТЬ!"
             
     result[OBJECT_TYPE] = result_type
+    
     return result
 
 # old one:

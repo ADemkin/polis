@@ -8,7 +8,6 @@ import os
 import traceback
 from bottle import route, run, template, post, request, HTTPResponse, static_file, redirect
 from io import StringIO
-import itertools
 import collections
 
 
@@ -919,8 +918,10 @@ def first_pass_process(input_file, csv_writer):
         
 
 def get_rooms_for_same_area(data, cadastral_num, area):
-    same_cadastral_num = filter(lambda row: row[CADASTRAL_NUM] == cadastral_num, data)
-    same_area = filter(lambda row: row[AREA] == area, same_cadastral_num)
+    # same_cadastral_num = filter(lambda row: row[CADASTRAL_NUM] == cadastral_num, data)
+    # same_area = filter(lambda row: row[AREA] == area, same_cadastral_num)
+    same_cadastral_num = [row for row in data if row[CADASTRAL_NUM] == cadastral_num]
+    same_area = [row for row in same_cadastral_num if row[AREA] == area]
     rooms_for_same_area = [i[ROOMS] for i in same_area]
     rooms_number = collections.Counter(rooms_for_same_area).most_common()
     if rooms_number:

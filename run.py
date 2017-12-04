@@ -8,8 +8,12 @@ import os
 import traceback
 from bottle import route, run, template, post, request, HTTPResponse, static_file, redirect
 from io import StringIO
+import itertools
+import collections
+
 
 import cadastral_data as cd
+
 
 # scp ~/impo.py root@138.197.223.128:/var/tmp/impo.py
 
@@ -20,6 +24,7 @@ LOCAL = 'static/'
 # VARIABLE / table name # old name (same name in xml)
 # id should be lowercase, this is ms excel bug
 ID_DDU = 'id'  # 'ID_DDU',
+CADASTRAL_NUM = '№ ЗУ'  # 'Num_Uchastok', Кадарстровый номер
 DDU_DOC_DESC_DATE = 'Дата ДДУ'  # 'DduDocDesc_date',
 DDU_DOC_DESC_NUMBER = '№ ДДУ'  # 'DduDocDesc_number'
 DDU_DATE = 'Дата регистрации ДДУ'  # 'DduDate',
@@ -42,7 +47,6 @@ LOAN_DURATION = 'Срок залога'  # 'loanDuration'
 LOAN_NAME = 'Тип залога'  # 'loanName'
 LOAN_NUMBER = '№ залога'  # 'loanNumber'
 LOAN_OWNER_NAME = 'Банк'  # 'loanOwnerName' # Переделываем в Банк, сейчас здесь ФИО дольщика
-NUM_UCHASTOK = '№ ЗУ'  # 'Num_Uchastok', Кадарстровый номер
 WHOLESALE = 'Кол-во купленных лотов'  # 'wholesale',
 DDU_DESC = 'Название ДДУ' # 'DduDocDesc
 FULL_ADDRESS = 'Объект и адрес' # full_address
@@ -57,7 +61,7 @@ GLORAX_COMPETITOR = 'Конкурент проекта Glorax'
 # all table headers in appearance order
 ALL_KEYS = [
     ID_DDU,
-    NUM_UCHASTOK,
+    CADASTRAL_NUM,
     PROJECT_NAME,
     SOURCE_FILE,
     GLORAX_COMPETITOR,
@@ -291,6 +295,7 @@ def replaceTyposInAddress(data):
     data = data.replace("/подъезд", ", подъезд ")
 
     return data
+
 
 def replaceTyposInDduDesc(data):
     data = " " + data\
@@ -669,8 +674,8 @@ def parseAddress(data):
     # todo: все буквенные значения привести к единому стандарту (заменять "цокольное" на "цокольный")
     re_floor = "[на урвьеотмк.]*(\-\d[,.]?\d+|\-?\d+)[-оимый]*"
     tmp = re.compile("(цоколь\w*|подвал\w*|подзем\w*)").search(data)
-    tmp = tmp or re.compile("{floor}\s*этаж[е,.;]*".format(floor=re_floor)).search(data)
-    tmp = tmp or re.compile("номер этажа[: ]*{floor}".format(floor=re_floor)).search(data)
+    tmp = tmp or re.compile(f"{re_floor}\s*этаж[е,.;]*").search(data)
+    tmp = tmp or re.compile(f"номер этажа[: ]*{re_floor}").search(data)
     result[FLOOR] = tmp and tmp.groups()[0] or ""
     
     
@@ -694,9 +699,7 @@ def parseAddress(data):
     elif tmp.isdigit() and float(tmp) > 1500 and (
     'квартир' in result[TYPE] or 'апарт' in result[TYPE] or
     'студ' in result[TYPE] or 'комнат' in result[TYPE] or
-    # todo: решить какую ветку оставить!
     'жилое' in result[TYPE]) and 'нежилое' not in result[TYPE]:
-    # 'жилое' in result[TYPE]):
         tmp = str(float(tmp) / 100).replace(".",",") # area separator is coma
     result[AREA] = tmp or ""
     
@@ -780,6 +783,9 @@ def parseAddress(data):
         # If kvartira without rooms
         # todo: check area and try to guess how many rooms
         result[ROOMS] = ""
+    else:
+        # prevent empty field, needed for later
+        result[ROOMS] = ""
     
     # save audit info
     result[FULL_ADDRESS] = data
@@ -815,7 +821,7 @@ def has_no_data(root):
     return False
 
 
-def process(input_file, csv_writer):
+def first_pass_process(input_file, csv_writer):
     inputFile = input_file.file.read().decode().replace("\n", " ")
     filename = os.path.splitext(input_file.raw_filename)[0]
     
@@ -849,7 +855,7 @@ def process(input_file, csv_writer):
     for elem in elems:
         
         res = dict()
-        res[NUM_UCHASTOK] = cadastralNumber
+        res[CADASTRAL_NUM] = cadastralNumber
         res[ID_DDU] = elem.findtext('ID_DDU')
         if not res[ID_DDU]:
             continue
@@ -907,27 +913,58 @@ def process(input_file, csv_writer):
         res[PROJECT_NAME] = object_custom_data['project_name']
         
         # output all fields as csv row
-        csv_writer.writerow(res)
+        #csv_writer.writerow(res)
+        
+        csv_writer.append(res)
+        
 
+def get_rooms_for_same_area(data, cadastral_num, area):
+    same_cadastral_num = filter(lambda row: row[CADASTRAL_NUM] == cadastral_num, data)
+    same_area = filter(lambda row: row[AREA] == area, same_cadastral_num)
+    rooms_for_same_area = [i[ROOMS] for i in same_area]
+    rooms_number = collections.Counter(rooms_for_same_area).most_common()
+    if rooms_number:
+        return rooms_number[0][0]
+
+
+def second_pass_process(data):
+    for row in data:
+        if row[ROOMS] == '':
+            #debug(f"empty rooms found in {row[ID_DDU]} in {row[SOURCE_FILE]}")
+            rooms = get_rooms_for_same_area(data, row[CADASTRAL_NUM], row[AREA])
+            if rooms:
+                row[ROOMS] = rooms
+                #debug(f"{row[ID_DDU]} in {row[SOURCE_FILE]} has {rooms} rooms\n\n")
+    
+    return data
+    
+def export_data_as_csv(main_data):
+    output = StringIO()
+    csv_writer = csv.DictWriter(output, fieldnames=ALL_KEYS)
+    csv_writer.writeheader()
+    if main_data:
+        csv_writer.writerows(main_data)
+    result_csv = output.getvalue()
+    output.close()
+    return result_csv
 
 
 @route('/upload', method='POST')
 def do_upload():
     try:
         print("BEGIN")
-        output = StringIO()
-        csv_writer = csv.DictWriter(output, fieldnames=ALL_KEYS)
-        csv_writer.writeheader()
-        
+
         uploads = request.files.getall('upload')
         
         if len(uploads) == 0:
             return "<h4>nothing to upload</h4></br><a href='/'>go back</a>"
         
         files_to_process = []
+        main_data = []
         
         for upload in uploads:
             # todo: make a workaround about raw_filename and encode it correctly (utf-8 i think)
+            # todo: transliterate filename to ascii
             name, ext = os.path.splitext(upload.filename)
             if ext == '.xlsx':
                 cd.store_json_data(cd.load_xlsx_data(upload.file))
@@ -936,13 +973,16 @@ def do_upload():
                 files_to_process.append(upload)
                 
         for file in files_to_process:
-            process(file, csv_writer)
+            first_pass_process(file, main_data)
             debug(f"file processed: {file.raw_filename}")
 
+        main_data = second_pass_process(main_data)
+
+        result_csv = export_data_as_csv(main_data)
+        
         if len(uploads) > 1:
             name += "_multiple"
-        result_csv = output.getvalue()
-        output.close()
+        
         print("END")
         headers = dict()
         headers['Content-Type'] = "text/csv;charset=utf-8"
@@ -959,13 +999,13 @@ def do_upload():
 @route('/static/<filename:path>')
 def send_static(filename):
     # use STATIC on deploy. Use LOCAL on development
-    return static_file(filename, root=LOCAL)
+    return static_file(filename, root=STATIC)
 
 
 @route('/')
 def index():
     # use ROOT on deploy. Use LOCAL on development
-    return static_file("index.html", root=LOCAL)
+    return static_file("index.html", root=ROOT)
 
 
 if __name__ == '__main__':

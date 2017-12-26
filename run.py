@@ -478,7 +478,7 @@ def get_object_type(data, object_type = ""):
             result_type = "машиноместо"
         else:
             if 'апарт' in possible_object_types:
-                result_type = 'апартаменты'
+                result_type = 'апартамент'
             else:
                 result_type = 'машиноместо'
             
@@ -520,117 +520,6 @@ def get_object_type(data, object_type = ""):
     result[OBJECT_TYPE] = result_type
     
     return result
-
-# old one:
-# def define_object_type(data):
-#     result = dict()
-#
-#     #floor = data[FLOOR] or ""
-#     floor = simplify_floor(data[FLOOR])
-#     #floor = get_floor_type_helper(data[FLOOR]) or "" # добавить классификатор сюда и заменить в теле алгоритма
-#     object_number = data[OBJECT_NUMBER].lower() or ""
-#     area = data[AREA].replace(",", ".")
-#     address = data[FULL_ADDRESS].lower()
-#     type_ = data[TYPE].lower()
-#
-#
-#     # сначала проверяем самые очевидные: ДОУ, стоянка, гараж\гск, кадовка. Исключаем доли. Дальше смотрим по этажу и
-#     # площади. Дальше заглядываем в сами названия.
-#     # В каком порядке мы заглядываем в адрес и тип?
-#     #
-#
-#     if "ДОУ" in address:
-#         #
-#         result[OBJECT_TYPE] = "ДОУ"
-#
-#     elif "встроен" in address or \
-#          "офис" in address or \
-#          "встроен" in type_ or \
-#         ("нежил" in type_ and floor == "1") or \
-#          "н" in object_number and BOOL(lambda: float(floor) <= 3):
-#         #
-#         result[OBJECT_TYPE] = "нежилое"
-#
-#     elif ("апарт" in address or \
-#          "апарт" in type_ or \
-#          "нежил" in type_ or \
-#          "студ" in type_ or \
-#          "нежил" in type_ and "комн" in type_ or \
-#          "нежил" in type_ and "студ" in type_ or \
-#          "нежил" in type_ and "комн" in address) and \
-#          BOOL(lambda: float(floor) >= 1) and BOOL(lambda: float(area) < 600) and BOOL(lambda: float(area) > 20) and \
-#          ("доли" not in address or "доля" not in address):
-#         #
-#         result[OBJECT_TYPE] = "апартамент"
-#
-#     # elif BOOL(lambda:float(floor) < 0):
-#     #     #
-#     #     result[OBJECT_TYPE] = "машиноместо"
-#     #
-#     elif "квартир" in type_ or \
-#         BOOL(lambda:float(floor) >= 1) and \
-#         BOOL(lambda:float(area) < 1200) and BOOL(lambda:float(area) > 16) and \
-#         "н" not in object_number and \
-#         ("доли" not in address or "доля" not in address) and \
-#         "комнат" in address:
-#         #
-#         result[OBJECT_TYPE] = "квартира"
-#
-#     elif (
-#          "машин" in address or \
-#          "машин" in type_ or \
-#          "стоянк" in address or \
-#          "стоянк" in type_ or \
-#          "стоян" in address or \
-#          "стоян" in type_ or \
-#          ("доли" in address or "доля" in address) or \
-#          "подвал" in floor or \
-#          "цокол" in floor or \
-#          "уров" in floor or \
-#          "нежил" in type_) and \
-#          (BOOL(lambda:float(area) > 1200) or (BOOL(lambda:float(area) <= 31) and BOOL(lambda:float(area) > 11))) and \
-#          BOOL(lambda:float(floor) <= 8):
-#          #
-#         result[OBJECT_TYPE] = "машиноместо"
-#
-#     # Old code by Oleg
-#     # elif "нежил" in type_ and BOOL(lambda: float(floor) >= 4) or \
-#     #      "нежил" in type_ and BOOL(lambda: float(floor) >= 2) and \
-#     #      BOOL(lambda:float(area) > 11) and BOOL(lambda: float(area) < 70) and \
-#     #      "стоян" not in type_ and "кладов" not in type_:
-#     #     #
-#     #     result[OBJECT_TYPE] = "апартамент"
-#     elif "нежил" in type_ and \
-#             BOOL(lambda:float(floor) >= 2) and \
-#             BOOL(lambda:float(area) > 11) and \
-#             BOOL(lambda:float(area) < 70) and \
-#             ("доли" not in address or "доля" not in address):
-#          #
-#         result[OBJECT_TYPE] = "апартамент"
-#
-#     elif "кладов" in type_ or \
-#          BOOL(lambda: float(area) <= 11):
-#         #
-#         result[OBJECT_TYPE] = "кладовая"
-#
-#
-#
-#     elif not type_ and not address or \
-#          not type_ and not area:
-#         #
-#         result[OBJECT_TYPE] = "нд"
-#
-#     else:
-#         # if nothing matched
-#         #pass
-#         result[OBJECT_TYPE] = CHECK_THIS
-#         # result[CHECK_THIS] = OBJECT_TYPE
-#
-#     # debug(f"obejct number: {object_number}\nfloor: {floor}\narea: {area}\nadress: {address}\ntype_: {type_}")
-#     # debug(result)
-#     # debug()
-#
-#     return result
     
 
 def wrap_data_like_value(s):

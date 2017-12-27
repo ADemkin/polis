@@ -322,10 +322,8 @@ def extractDduDocDesc(desc):
     
     desc = replaceTyposInDduDesc(desc)
     result = dict()
-    # print("DESC = " + desc + "|")
     
-    # parse ddu date
-    # search = re.compile("Договор участия в долевом строительстве[^;,]* от ("+DATE_REGEXP+")").search(desc)  # Oleg
+    # Дата регистрации ДДУ
     search = re.compile(f"Договор участия в долевом строительстве[^;]* от ({DATE_REGEXP})").search(desc)
     search = search or re.compile(f"Договор.* долевого.* участия от ({DATE_REGEXP})").search(desc)
     search = search or re.compile(f"Договор участия.* от ({DATE_REGEXP})").search(desc)
@@ -336,10 +334,9 @@ def extractDduDocDesc(desc):
     search = search or re.compile(f"Дополнительное.* соглашение[^;,]* от ({DATE_REGEXP})").search(desc)
     search = search or re.compile(f"Соглашение об уступке[^;,]* от ({DATE_REGEXP})").search(desc)
     search = search or re.compile(f"Муниципальный контракт[^;,]* от ({DATE_REGEXP})").search(desc)
-    #Муниципальный контракт oт 09.11.2017 №156
     result[DDU_DOC_DESC_DATE] = search and search.groups()[0] or ""
     
-    # parse ddu number
+    # № ДДУ
     # todo: create additional complex regexp for ddu number (for space typos and so on)
     search = re.compile("Договор участия в долевом строительстве.* от[^№]*(№.*?)[;, ]").search(desc)
     search = search or re.compile("Договор участия в долевом строительстве.*(№.*?) от[^№]*[:, ]*").search(desc)
@@ -359,8 +356,7 @@ def extractDduDocDesc(desc):
 
     desc = desc.lower()
     
-    # Type_dogovor
-    # Определяем тип договора
+    # Тип Договора
     if "уступ" in desc or "цесси" in desc:
         result[DOGOVOR_TYPE] = "Уступка"
     elif "замен" in desc or "перемен" in desc:
@@ -371,9 +367,9 @@ def extractDduDocDesc(desc):
         result[DOGOVOR_TYPE] = "Доп. соглашение"
     elif 'муницип' in desc:
         result[DOGOVOR_TYPE] = "Муниципальный контракт"
+        # todo: возможно заменить на "другое"
     else:
         result[DOGOVOR_TYPE] = "ДДУ"
-        
         
     return result
 

@@ -334,6 +334,8 @@ def extractDduDocDesc(desc):
     search = search or re.compile("участия в долевом строительстве[^;,]* от ("+DATE_REGEXP+")").search(desc)
     search = search or re.compile("Дополнительное.* соглашение[^;,]* от ("+DATE_REGEXP+")").search(desc)
     search = search or re.compile("Соглашение об уступке[^;,]* от ("+DATE_REGEXP+")").search(desc)
+    search = search or re.compile(f"Муниципальный контракт[^;,]* от ({DATE_REGEXP})").search(desc)
+    #Муниципальный контракт oт 09.11.2017 №156
     result[DDU_DOC_DESC_DATE] = search and search.groups()[0] or ""
     
     # parse ddu number
@@ -346,6 +348,7 @@ def extractDduDocDesc(desc):
     search = search or re.compile("Дополнительное.* соглашение[^;,]* от[^№]*(№.{1,25}?)[:, ]*").search(desc)
     search = search or re.compile("строительстве.*от[^№]*(№.*?)[;, ]").search(desc)
     search = search or re.compile("Соглашение об уступке[^;,]* от[^№]*(№.*?)[;, ]").search(desc)
+    search = search or re.compile("Муниципальный контракт[^;,]* от [^№]*(№.*?)[;, ]").search(desc)
     result[DDU_DOC_DESC_NUMBER] = search and search.groups()[0] or ""
     
     checkDate = re.compile("дата регистрации ("+DATE_REGEXP+"),").search(desc)
@@ -365,8 +368,12 @@ def extractDduDocDesc(desc):
         result[DOGOVOR_TYPE] = "Расторжение"
     elif "соглаш" in desc:
         result[DOGOVOR_TYPE] = "Доп. соглашение"
+    elif 'муницип' in desc:
+        result[DOGOVOR_TYPE] = "Муниципальный контракт"
     else:
         result[DOGOVOR_TYPE] = "ДДУ"
+        
+        
     return result
 
 

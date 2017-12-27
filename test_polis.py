@@ -1177,7 +1177,7 @@ class TestStringMethods(unittest.TestCase):
         r = impo.get_floor_simplified(s)
         self.assertTrue(r and r < 1)
         
-        s= ""
+        s = ""
         r = impo.get_floor_simplified(s)
         self.assertFalse(r and r < 1)
         
@@ -1185,6 +1185,14 @@ class TestStringMethods(unittest.TestCase):
         r = impo.get_floor_simplified(s)
         self.assertFalse(r and r < 1)
     
+
+    def test_municipalniy_kontrakt(self):
+        
+        s = 'Муниципальный контракт oт 09.11.2017 №156'
+        r = impo.extractDduDocDesc(s)
+        self.assertEqual(r[impo.DDU_DOC_DESC_DATE], '09.11.2017')
+        self.assertEqual(r[impo.DDU_DOC_DESC_NUMBER], '№156')
+        self.assertEqual(r[impo.DOGOVOR_TYPE], 'Муниципальный контракт')
 
 if __name__ == '__main__':
     unittest.main()

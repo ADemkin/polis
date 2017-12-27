@@ -316,24 +316,25 @@ def BOOL(f):
         return False
 
 
-DATE_REGEXP = "[0-9]{2}\.[0-9]{2}\.[0-9]{4}"
 
 def extractDduDocDesc(desc):
+    DATE_REGEXP = "[0-9]{2}\.[0-9]{2}\.[0-9]{4}"
+    
     desc = replaceTyposInDduDesc(desc)
     result = dict()
     # print("DESC = " + desc + "|")
     
     # parse ddu date
     # search = re.compile("Договор участия в долевом строительстве[^;,]* от ("+DATE_REGEXP+")").search(desc)  # Oleg
-    search = re.compile("Договор участия в долевом строительстве[^;]* от ("+DATE_REGEXP+")").search(desc)
-    search = search or re.compile("Договор.* долевого.* участия от ("+DATE_REGEXP+")").search(desc)
-    search = search or re.compile("Договор участия.* от ("+DATE_REGEXP+")").search(desc)
-    search = search or re.compile("Договор от ("+DATE_REGEXP+")").search(desc)
-    search = search or re.compile("строительстве .*многоквартирного[^;,]* от ("+DATE_REGEXP+")").search(desc)
-    search = search or re.compile("строительстве .* по адресу.* от ("+DATE_REGEXP+")").search(desc)
-    search = search or re.compile("участия в долевом строительстве[^;,]* от ("+DATE_REGEXP+")").search(desc)
-    search = search or re.compile("Дополнительное.* соглашение[^;,]* от ("+DATE_REGEXP+")").search(desc)
-    search = search or re.compile("Соглашение об уступке[^;,]* от ("+DATE_REGEXP+")").search(desc)
+    search = re.compile(f"Договор участия в долевом строительстве[^;]* от ({DATE_REGEXP})").search(desc)
+    search = search or re.compile(f"Договор.* долевого.* участия от ({DATE_REGEXP})").search(desc)
+    search = search or re.compile(f"Договор участия.* от ({DATE_REGEXP})").search(desc)
+    search = search or re.compile(f"Договор от ({DATE_REGEXP})").search(desc)
+    search = search or re.compile(f"строительстве .*многоквартирного[^;,]* от ({DATE_REGEXP})").search(desc)
+    search = search or re.compile(f"строительстве .* по адресу.* от ({DATE_REGEXP})").search(desc)
+    search = search or re.compile(f"участия в долевом строительстве[^;,]* от ({DATE_REGEXP})").search(desc)
+    search = search or re.compile(f"Дополнительное.* соглашение[^;,]* от ({DATE_REGEXP})").search(desc)
+    search = search or re.compile(f"Соглашение об уступке[^;,]* от ({DATE_REGEXP})").search(desc)
     search = search or re.compile(f"Муниципальный контракт[^;,]* от ({DATE_REGEXP})").search(desc)
     #Муниципальный контракт oт 09.11.2017 №156
     result[DDU_DOC_DESC_DATE] = search and search.groups()[0] or ""
@@ -351,7 +352,7 @@ def extractDduDocDesc(desc):
     search = search or re.compile("Муниципальный контракт[^;,]* от [^№]*(№.*?)[;, ]").search(desc)
     result[DDU_DOC_DESC_NUMBER] = search and search.groups()[0] or ""
     
-    checkDate = re.compile("дата регистрации ("+DATE_REGEXP+"),").search(desc)
+    checkDate = re.compile(f"дата регистрации ({DATE_REGEXP}),").search(desc)
     checkDogovor = re.compile("Договор.* участия").search(desc)
     if checkDate and checkDogovor:
         result[DDU_DATE] = checkDate.groups()[0]

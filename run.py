@@ -158,7 +158,12 @@ SECTION_TYPO = [
     'сееция ',
     'cекция',
     'сеция ',
-    'скц. ']
+    'скц. ',
+    'секции',
+    'СЕКЦ.',
+    'секци я',
+    'секци ', # this one should be last
+    ]
 
 CORPUS_TYPOS = [
     'корпус:',
@@ -208,6 +213,7 @@ CORPUS_TYPOS = [
     'дома №',
     'блое',
     'КОРП.',
+    'вкорпус'
     ]
 
 DOGOVOR_UCHASTIA_TYPO = [
@@ -540,14 +546,11 @@ FMTS = dict(
 
 
 def parseAddress(data):
+    #data = data.lower()
     data = replaceTyposInAddress(data)
     result = dict()
     
-    # Object Oleg
-    # tmp = re.compile("Объект долевого строительства[: ]*(.*?)[,;]").search(data)
-    # result[TYPE] = tmp and tmp.groups()[0].lower() or ""
-
-    # Object Anton
+    # Объект
     # это регулярка состоит из трех частей:
     # первая, необязательная, которая сожержит в основном описания.
     # вторая, обязательная, содержит непосредственно упоминание объекта.
@@ -606,26 +609,27 @@ def parseAddress(data):
     # Corpus
     corpus_data = data.lower()
     tmp = re.compile("[^\d][;.,][ ]{0,3}([\d.]+)[- ]*корпус[;,.]?[\s]+[^\d]").search(corpus_data)
-    tmp = tmp or re.compile("[, )\d]корпус{eq}й?([а-я\d\./\-]+){sep}".format_map(FMTS)).search(corpus_data)
+    tmp = tmp or re.compile("[, )\d]корпус(?!ами){eq}й?([а-я\d\./\-]+){sep}".format_map(FMTS)).search(corpus_data)
     tmp = tmp or re.compile("[\s\(]?блоки?{eq}([\d\.]+){sep}".format_map(FMTS)).search(corpus_data)
-    tmp = tmp or re.compile(", (\d+?)[-й]* блок{sep}".format_map(FMTS)).search(corpus_data)  # Oleg
+    tmp = tmp or re.compile(", (\d+?)[-й]* блок{sep}".format_map(FMTS)).search(corpus_data)
     tmp = tmp and tmp.groups()[0] or ""
     result[CORPUS] = wrap_data_like_value(tmp)
 
-    # Section
-    tmp = re.compile("секция{eq}({section})[\(\s]*секция[: -]*({section}){sep}".format_map(FMTS)).search(data)
+    # Секция
+    section_data = data.lower()
+    tmp = re.compile("секция{eq}({section})[\(\s]*секция[: -]*({section}){sep}".format_map(FMTS)).search(section_data)
     if tmp:
         result[SECTION] = tmp and wrap_data_like_value("{groups[0]} ({groups[1]})".format(groups=tmp.groups()))
     if not tmp:
-        tmp = re.compile("секция{eq}([а-яА-Я\d]+){sep}([а-яА-Я\d]) *,".format_map(FMTS)).search(data)
+        tmp = re.compile("секция{eq}([а-яА-Я\d]+){sep}([а-яА-Я\d]) *,".format_map(FMTS)).search(section_data)
         result[SECTION] = tmp and wrap_data_like_value("{groups[0]}, {groups[1]}".format(groups=tmp.groups()))
     if not tmp:
-        tmp = re.compile("секция{eq}({section}?){eq}\(([а-яА-Я\d]?)\){sep}".format_map(FMTS)).search(data)
+        tmp = re.compile("секция{eq}({section}?){eq}\(([а-яА-Я\d]?)\){sep}".format_map(FMTS)).search(section_data)
         result[SECTION] = tmp and wrap_data_like_value("{groups[0]}{groups[1]}".format(groups=tmp.groups()))
     if not tmp:
-        tmp = re.compile("секция{eq}([^;, ]+?){sep}".format_map(FMTS)).search(data)
-        tmp = tmp or re.compile("секция{eq}([^;, ]+?){sep}".format_map(FMTS)).search(data)
-        tmp = tmp or re.compile("[, ]+({section}?) секция{sep}".format_map(FMTS)).search(data)
+        tmp = re.compile("секция{eq}([^;, ]+?){sep}".format_map(FMTS)).search(section_data)
+        tmp = tmp or re.compile("секция{eq}([^;, ]+?){sep}".format_map(FMTS)).search(section_data)
+        tmp = tmp or re.compile("[, ]+({section}?) секция{sep}".format_map(FMTS)).search(section_data)
         tmp = tmp and tmp.groups()[0] or ""
         result[SECTION] = tmp and wrap_data_like_value(tmp)
 
@@ -687,7 +691,8 @@ def parseAddress(data):
 
 
 def is_person(owner):
-    if "'" in owner or '"' in owner:
+    # check if owner is ФЛ or ЮЛ
+    if "'" in owner or '"' in owner or 'акционерное' in owner or 'общество':
         return False
     return True
 
@@ -789,10 +794,14 @@ def first_pass_process(input_file, csv_writer):
                     res[LOAN_OWNER_NAME]= curr.find('Organization').findtext('Name')
         
         # Type_owner
-        if "'" in res[OWNERS] or '"' in res[OWNERS]:
-            res[OWNER_TYPE] = "ЮЛ"
-        else:
+        # if "'" in res[OWNERS] or '"' in res[OWNERS]:
+        #     res[OWNER_TYPE] = "ЮЛ"
+        # else:
+        #     res[OWNER_TYPE] = "ФЛ"
+        if is_person(res[OWNERS]):
             res[OWNER_TYPE] = "ФЛ"
+        else:
+            res[OWNER_TYPE] = "ЮЛ"
         
         res[SOURCE_FILE] = filename
         
@@ -893,13 +902,13 @@ def do_upload():
 @route('/static/<filename:path>')
 def send_static(filename):
     # use STATIC on deploy. Use LOCAL on development
-    return static_file(filename, root=STATIC)
+    return static_file(filename, root=LOCAL)
 
 
 @route('/')
 def index():
     # use ROOT on deploy. Use LOCAL on development
-    return static_file("index.html", root=ROOT)
+    return static_file("index.html", root=LOCAL)
 
 
 if __name__ == '__main__':

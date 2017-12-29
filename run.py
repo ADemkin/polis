@@ -598,7 +598,7 @@ def parseAddress(data):
         tmp = str(float(tmp) / 100).replace(".",",") # area separator is coma
     result[AREA] = tmp or ""
     
-    # Adress
+    # Address
     tmp = re.compile("местоположение[: ]+(.*?)[.;]*$").search(data)
     tmp = tmp or re.compile("строительный адрес[: ]+(.*?)[.;]*$").search(data)
     # tmp = tmp or re.compile("уч. (.*?),кад.").search(data)
@@ -608,7 +608,7 @@ def parseAddress(data):
     # todo: если корупса/блока нет, то берем дом
     # Corpus
     corpus_data = data.lower()
-    tmp = re.compile("[^\d][;.,][ ]{0,3}([\d.]+)[- ]*корпус[;,.]?[\s]+[^\d]").search(corpus_data)
+    tmp = re.compile("[^\d][;,]\s*([\d.]+)[- ]*корпус[;,.]?\s*[^\d]").search(corpus_data)
     tmp = tmp or re.compile("[, )\d]корпус(?!ами){eq}й?([а-я\d\./\-]+){sep}".format_map(FMTS)).search(corpus_data)
     tmp = tmp or re.compile("[\s\(]?блоки?{eq}([\d\.]+){sep}".format_map(FMTS)).search(corpus_data)
     tmp = tmp or re.compile(", (\d+?)[-й]* блок{sep}".format_map(FMTS)).search(corpus_data)

@@ -692,7 +692,7 @@ def parseAddress(data):
 
 def is_person(owner):
     # check if owner is ФЛ or ЮЛ
-    if "'" in owner or '"' in owner or 'акционерное' in owner or 'общество':
+    if "'" in owner or '"' in owner or 'акционерное' in owner or 'общество' in owner:
         return False
     return True
 
@@ -798,6 +798,7 @@ def first_pass_process(input_file, csv_writer):
         #     res[OWNER_TYPE] = "ЮЛ"
         # else:
         #     res[OWNER_TYPE] = "ФЛ"
+        debug(res[OWNERS])
         if is_person(res[OWNERS]):
             res[OWNER_TYPE] = "ФЛ"
         else:

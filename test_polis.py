@@ -1230,7 +1230,25 @@ class TestStringMethods(unittest.TestCase):
         s = 'Санкт-Петербург, Василеостровский район, Невская губа, уч.28, (западнее Васильевского острова, квартал 25),2 этап,6 корпус,секция 1, в осях 5-9,М-С'
         r = impo.parseAddress(s)
         self.assertEqual(r[impo.CORPUS], '="6"')
-    
+        
+        
+    def test_ul_fl_december_2017(self):
+        
+        s = 'Садовничий Юрий Викторович'
+        self.assertTrue(impo.is_person(s))
+        
+        s = 'Гроицкий Валерий Владимирович, Гроицкая Любовь Александровна'
+        self.assertTrue(impo.is_person(s))
+        
+        s = 'Общество с ограниченной ответственностью "СЕВЕН САНС ДЕВЕЛОПМЕНТ СЕВЕРО-ЗАПАД"'
+        self.assertFalse(impo.is_person(s))
+        
+        s = 'Система Лизинг 24 (закрытое акционерное общество)'
+        self.assertFalse(impo.is_person(s))
+        
+        
+        
+        
     
 if __name__ == '__main__':
     unittest.main()

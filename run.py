@@ -798,7 +798,7 @@ def first_pass_process(input_file, csv_writer):
         #     res[OWNER_TYPE] = "ЮЛ"
         # else:
         #     res[OWNER_TYPE] = "ФЛ"
-        debug(res[OWNERS])
+        #debug(res[OWNERS])
         if is_person(res[OWNERS]):
             res[OWNER_TYPE] = "ФЛ"
         else:
@@ -807,12 +807,18 @@ def first_pass_process(input_file, csv_writer):
         res[SOURCE_FILE] = filename
         
         # set extra fields
-        possible_object_types = object_custom_data['object_type']
+        if 'object_type' in object_custom_data:
+            possible_object_types = object_custom_data['object_type']
+        else:
+            possible_object_types = ""
+            
         res.update(get_object_type(res, possible_object_types))
         
         # write custom data from xlsx
-        res[GLORAX_COMPETITOR] = object_custom_data['project_glorax_competitor']
-        res[PROJECT_NAME] = object_custom_data['project_name']
+        if 'project_glorax_competitor' in object_custom_data:
+            res[GLORAX_COMPETITOR] = object_custom_data['project_glorax_competitor']
+        if 'project_name' in object_custom_data:
+            res[PROJECT_NAME] = object_custom_data['project_name']
         
         # output all fields as csv row
         #csv_writer.writerow(res)
@@ -884,7 +890,7 @@ def do_upload():
 
         result_csv = export_data_as_csv(main_data)
         
-        if len(uploads) > 1:
+        if len(files_to_process) > 1:
             name += "_multiple"
         
         print("END")

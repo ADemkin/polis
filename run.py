@@ -10,15 +10,21 @@ from bottle import route, run, template, post, request, HTTPResponse, static_fil
 from io import StringIO
 import collections
 
-
 import cadastral_data as cd
 
+from decouple import config
 
-# scp ~/impo.py root@138.197.223.128:/var/tmp/impo.py
 
 ROOT = '/var/tmp/polis/static/'
 STATIC = 'var/tmp/static/'
 LOCAL = 'static/'
+
+STATIC_DIR = config('STATIC_DIR') or LOCAL
+SETTINGS_DIR = config('SETTINGS_DIR') or LOCAL
+DEBUG_MODE = config('DEBUG_MODE') or True
+PORT = config('PORT') or 9999
+
+# scp ~/impo.py root@138.197.223.128:/var/tmp/impo.py
 
 # VARIABLE / table name # old name (same name in xml)
 # id should be lowercase, this is ms excel bug
@@ -909,15 +915,15 @@ def do_upload():
 @route('/static/<filename:path>')
 def send_static(filename):
     # use STATIC on deploy. Use LOCAL on development
-    return static_file(filename, root=LOCAL)
+    return static_file(filename, root=STATIC_DIR)
 
 
 @route('/')
 def index():
     # use ROOT on deploy. Use LOCAL on development
-    return static_file("index.html", root=LOCAL)
+    return static_file("index.html", root=SETTINGS_DIR)
 
 
 if __name__ == '__main__':
-    run(host='localhost', port=9999, reloader=True, debug=True)  # TODO: remove reloader on release
+    run(host='localhost', port=PORT, reloader=True, debug=DEBUG_MODE)  # TODO: remove reloader on release
 

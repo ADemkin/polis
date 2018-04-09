@@ -13,6 +13,7 @@ def load_xlsx_data(xlsx_file):
     
     rows = sheet.rows
     all_data = []
+
     
     # todo: find coloumns by correct headers
     next(rows)  # skip headers
